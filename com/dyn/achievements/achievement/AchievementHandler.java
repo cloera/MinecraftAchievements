@@ -7,6 +7,12 @@ import java.util.*;
 
 import com.dyn.achievements.achievement.AchievementPlus.AchievementType;
 
+/***
+ * An event handler class for achievements.
+ * 
+ * @author Dominic Amato
+ *
+ */
 public class AchievementHandler {
 
 	public static Map<String, AchievementPage> achievementPages = new HashMap<>();
@@ -15,10 +21,20 @@ public class AchievementHandler {
 	// currently achievements can have mixed requirements so this doesnt work
 	public static Map<AchievementType, ArrayList<AchievementPlus>> achievementsType = new HashMap<>();
 
+
+	/***
+	 * Initializes page of achievements.
+	 * @see addAchievementsPage()
+	 */
 	public static void initalize() {
 		addAchievementPage("DYN Achievements", getAllAchievements());
 	}
 
+	/***
+	 * Adds page of achievements.
+	 * @param pageName Name of achievement page
+	 * @param achievements ArrayList of achievements
+	 */
 	public static void addAchievementPage(String pageName, ArrayList<AchievementPlus> achievements) {
 		if (achievements.size() > 0) {
 			AchievementPage achievementPage = new AchievementPage(pageName,
@@ -29,20 +45,38 @@ public class AchievementHandler {
 		}
 	}
 
+	/***
+	 * Gets list of all achievements.
+	 * @return ArrayList of achievements
+	 */
 	public static ArrayList<AchievementPlus> getAllAchievements() {
 		return achievements;
 	}
 
+	/***
+	 * Finds achievement by given name.
+	 * @param name String of achievement name
+	 * @return achievement object
+	 */
 	public static Achievement findAchievementByName(String name) {
 		return achievementsName.get(name);
 	}
 
+	/***
+	 * Find all achievements of given type.
+	 * @param type AchievementType object
+	 * @return ArrayList of achievements
+	 */
 	public static ArrayList<AchievementPlus> findAchievementByType(AchievementType type) {
 		return achievementsType.get(type);
 	}
 
+	/***
+	 * Registers achievement by CRAFT, SMELT, PICKUP, and STAT type.
+	 * @param achievement AchievementPlus object
+	 */
 	public static void registerAchievementRequirementTypes(AchievementPlus achievement) {
-		// if the key doesn't exist make it
+		/**< if the key doesn't exist make it */
 		boolean[] vals = achievement.getRequirements().getRequirementTypes();
 		if (vals[0]) {
 			if (achievementsType.get(AchievementType.CRAFT) == null) {
@@ -88,6 +122,14 @@ public class AchievementHandler {
 		}
 	}
 
+	/***
+	 * Registers Achievements.
+	 * Add achievement to achievements ArrayList.
+	 * Put achievement and name in achievementName HashMap.
+	 * @see registerAchievementRequirementTypes
+	 * @param name of type String
+	 * @param achievement of type AchievementPlus
+	 */
 	public static void registerAchievement(String name, AchievementPlus achievement) {
 
 		achievements.add(achievement);
