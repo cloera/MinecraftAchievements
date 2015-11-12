@@ -13,35 +13,63 @@ import net.minecraft.stats.Achievement;
 import net.minecraft.stats.StatBase;
 import net.minecraft.world.World;
 
+/***
+ * AchievementPlus class modifies Achievement class in MineCraft source code.
+ * 
+ * @author Dominic Amato
+ *
+ */
 public class AchievementPlus extends Achievement {
 
 	private Requirements requirements;
 
 	public AchievementPlus(Requirements requirements, String name, String description, int xCoord, int yCoord,
 			ItemStack displayIcon, Achievement parent) {
-		// something is wrong with the achievement constructor, we may need to
-		// overwrite it as the text is displaying wrong
+		/**< something is wrong with the achievement constructor, we may need to */
+		/**< overwrite it as the text is displaying wrong */
 		super(name.toLowerCase(), description, xCoord, yCoord, displayIcon.getItem(), parent);
 		this.requirements = requirements;
 		AchievementHandler.registerAchievement(name.toLowerCase(), this);
 	}
 
+	/***
+	 * Get Requirements.
+	 * @return requirements
+	 */
 	public Requirements getRequirements() {
 		return requirements;
 	}
 
+	/***
+	 * If requirements of specified type exists it returns true, else false.
+	 * @param type AchievementType
+	 * @return boolean 
+	 */
 	public boolean hasRequirementOfType(AchievementType type) {
 		return requirements.getRequirementsByType(type).size() > 0;
 	}
 
+	/***
+	 * Get Achievement object.
+	 * @return Achievement
+	 */
 	public Achievement getAchievement() {
 		return this;
 	}
 
+	/***
+	 * Overrides setSpecial() in Achievement class.
+	 */
 	public Achievement setSpecial() {
 		return super.setSpecial();
 	}
 
+	/***
+	 * Awards achievement to player.
+	 * @param world World
+	 * @param player EntityPlayer
+	 * @param itemStack ItemStack
+	 */
 	public void awardAchievement(World world, EntityPlayer player, ItemStack itemStack) {
 		player.addStat(this, 1);
 	}
@@ -50,54 +78,56 @@ public class AchievementPlus extends Achievement {
 		CRAFT, SMELT, PICKUP, STAT, KILL, SPAWN, OTHER
 	}
 
-	// this is javas solution to nested classes... statics tend to be dangerous
-	// in C but either we include it in the contsructor
-	// as a static or it has to be initialized in the achievementPlus
-	// constructor
+	/***
+	 * This is Java's solution to nested classes. 
+	 * Statics tend to be dangerous in C, but either we include it in the constructor
+	 * as a static or it has to be initialized in the achievementPlus
+	 * constructor.
+	 */
 	public static class Requirements {
 		public abstract class BaseRequirement {
 
 		}
 
 		public class craftRequirement extends BaseRequirement {
-			// what is the item?
+			/**< what is the item? */
 			public ItemStack item;
-			// how many do they have to craft?
+			/**< how many do they have to craft? */
 			public int amount;
 		}
 
 		public class smeltRequirement extends BaseRequirement {
-			// what is the item?
+			/**< what is the item? */
 			public ItemStack item;
-			// how many do they have to craft?
+			/**< how many do they have to craft? */
 			public int amount;
 		}
 
 		public class killRequirement extends BaseRequirement {
-			// what is the item?
+			/**< what is the item? */
 			public String entityType;
-			// how many do they have to kill?
+			/**< how many do they have to kill? */
 			public int amount;
 		}
 
 		public class spawnRequirement extends BaseRequirement {
-			// what is the item?
+			/**< what is the item? */
 			public String entityType;
-			// how many do they have to create?
+			/**< how many do they have to create? */
 			public int amount;
 		}
 
 		public class pickupRequirement extends BaseRequirement {
-			// what is the item?
+			/**< what is the item? */
 			public Item pickupItem;
-			// how many do they have to get?
+			/**< how many do they have to get? */
 			public int amount;
 		}
 
 		public class statRequirement extends BaseRequirement {
-			// what is the stat?
+			/**< what is the stat? */
 			public StatBase eventStat;
-			// how much?
+			/**< how much? */
 			public int amount;
 		}
 
@@ -107,14 +137,26 @@ public class AchievementPlus extends Achievement {
 
 		}
 
+		/***
+		 * Add requirement to requirements ArrayList.
+		 * @param req BaseRequirement
+		 */
 		public void addRequirement(BaseRequirement req) {
 			requirements.add(req);
 		}
 
+		/***
+		 * Get requirements ArrayList.
+		 * @return requirements ArrayList
+		 */
 		public ArrayList<BaseRequirement> getRequirements() {
 			return requirements;
 		}
 
+		/***
+		 * Get boolean of all types from requirements ArrayList.
+		 * @return boolean[] of types in requirements
+		 */
 		public boolean[] getRequirementTypes() {
 			boolean hasCraft = false;
 			boolean hasSmelt = false;
@@ -146,6 +188,11 @@ public class AchievementPlus extends Achievement {
 			return types;
 		}
 
+		/***
+		 * Get list of requirements by specified type.
+		 * @param type AchievementType
+		 * @return ArrayList<BaseRequirement> of given type
+		 */
 		public ArrayList<BaseRequirement> getRequirementsByType(AchievementType type) {
 			ArrayList<BaseRequirement> typereq = new ArrayList();
 			for (BaseRequirement r : requirements) {
