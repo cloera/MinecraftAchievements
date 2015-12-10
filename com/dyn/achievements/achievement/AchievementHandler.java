@@ -15,11 +15,11 @@ import com.dyn.achievements.achievement.AchievementPlus.AchievementType;
  */
 public class AchievementHandler {
 
-	public static Map<String, AchievementPage> achievementPages = new HashMap<>();
-	public static ArrayList<AchievementPlus> achievements = new ArrayList<>();
-	public static Map<String, AchievementPlus> achievementsName = new HashMap<>();
+	public static Map<String, AchievementPage> achievementPages = new HashMap();
+	public static ArrayList<AchievementPlus> achievements = new ArrayList();
+	public static Map<String, AchievementPlus> achievementsName = new HashMap();
 	// currently achievements can have mixed requirements so this doesnt work
-	public static Map<AchievementType, ArrayList<AchievementPlus>> achievementsType = new HashMap<>();
+	public static Map<AchievementType, ArrayList<AchievementPlus>> achievementsType = new HashMap();
 
 
 	/***
@@ -80,42 +80,42 @@ public class AchievementHandler {
 		boolean[] vals = achievement.getRequirements().getRequirementTypes();
 		if (vals[0]) {
 			if (achievementsType.get(AchievementType.CRAFT) == null) {
-				ArrayList<AchievementPlus> ach = new ArrayList<>();
+				ArrayList<AchievementPlus> ach = new ArrayList();
 				achievementsType.put(AchievementType.CRAFT, ach);
 			}
 			achievementsType.get(AchievementType.CRAFT).add(achievement);
 		}
 		if (vals[1]) {
 			if (achievementsType.get(AchievementType.SMELT) == null) {
-				ArrayList<AchievementPlus> ach = new ArrayList<>();
+				ArrayList<AchievementPlus> ach = new ArrayList();
 				achievementsType.put(AchievementType.SMELT, ach);
 			}
 			achievementsType.get(AchievementType.SMELT).add(achievement);
 		}
 		if (vals[2]) {
 			if (achievementsType.get(AchievementType.PICKUP) == null) {
-				ArrayList<AchievementPlus> ach = new ArrayList<>();
+				ArrayList<AchievementPlus> ach = new ArrayList();
 				achievementsType.put(AchievementType.PICKUP, ach);
 			}
 			achievementsType.get(AchievementType.PICKUP).add(achievement);
 		}
 		if (vals[3]) {
 			if (achievementsType.get(AchievementType.STAT) == null) {
-				ArrayList<AchievementPlus> ach = new ArrayList<>();
+				ArrayList<AchievementPlus> ach = new ArrayList();
 				achievementsType.put(AchievementType.STAT, ach);
 			}
 			achievementsType.get(AchievementType.STAT).add(achievement);
 		}
 		if (vals[4]) {
 			if (achievementsType.get(AchievementType.KILL) == null) {
-				ArrayList<AchievementPlus> ach = new ArrayList<>();
+				ArrayList<AchievementPlus> ach = new ArrayList();
 				achievementsType.put(AchievementType.KILL, ach);
 			}
 			achievementsType.get(AchievementType.KILL).add(achievement);
 		}
 		if (vals[5]) {
 			if (achievementsType.get(AchievementType.SPAWN) == null) {
-				ArrayList<AchievementPlus> ach = new ArrayList<>();
+				ArrayList<AchievementPlus> ach = new ArrayList();
 				achievementsType.put(AchievementType.SPAWN, ach);
 			}
 			achievementsType.get(AchievementType.SPAWN).add(achievement);
