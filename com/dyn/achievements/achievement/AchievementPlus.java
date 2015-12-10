@@ -33,6 +33,7 @@ public class AchievementPlus extends Achievement {
 	private String name;
 	private String desc;
 	private AchievementPlus parent;
+	private boolean awarded;
 
 	public AchievementPlus() {
 		super("", "", 0, 0, Item.getItemById(0), null);
@@ -40,6 +41,7 @@ public class AchievementPlus extends Achievement {
 		name = "";
 		desc = "";
 		parent = null;
+		awarded = false;
 	}
 	
 	public AchievementPlus(Requirements requirements, String name, String description, int xCoord, int yCoord,
@@ -48,11 +50,12 @@ public class AchievementPlus extends Achievement {
 		// overwrite it as the text is displaying wrong
 		super(name.toLowerCase(), description, xCoord, yCoord, displayIcon.getItem(), parent);
 		this.requirements = requirements;
-		AchievementHandler.registerAchievement(name.toLowerCase(), this);
+		AchievementHandler.registerAchievement(this);
 		
 		this.name = name;
 		this.desc = description;
 		this.parent = parent;
+		awarded = false;
 	}
 
 	/***
@@ -95,6 +98,15 @@ public class AchievementPlus extends Achievement {
 	 */
 	public void awardAchievement(World world, EntityPlayer player, ItemStack itemStack) {
 		player.addStat(this, 1);
+		awarded = true;
+	}
+	
+	public boolean isAwarded(){
+		return awarded;
+	}
+	
+	public void setAwarded(boolean state){
+		awarded = state;
 	}
 	
 	public String getName(){
@@ -188,7 +200,7 @@ public class AchievementPlus extends Achievement {
 					int counter = 1;
 					for(BaseRequirement t : typeReq){
 						JsonObject reqSubTypes = new JsonObject();
-						reqSubTypes.addProperty("item", t.getRequirementItem());
+						reqSubTypes.addProperty("item", t.getRequirementItemEntity());
 						reqSubTypes.addProperty("amount", t.getRequirementAmount());
 						reqSubTypes.addProperty("id", t.getRequirementItemID());
 						reqTypes.add("craft_req_"+Integer.toString(counter++), reqSubTypes);
@@ -202,7 +214,7 @@ public class AchievementPlus extends Achievement {
 					int counter = 1;
 					for(BaseRequirement t : typeReq){
 						JsonObject reqSubTypes = new JsonObject();
-						reqSubTypes.addProperty("item", t.getRequirementItem());
+						reqSubTypes.addProperty("item", t.getRequirementItemEntity());
 						reqSubTypes.addProperty("amount", t.getRequirementAmount());
 						reqSubTypes.addProperty("id", t.getRequirementItemID());
 						reqTypes.add("smelt_req_"+Integer.toString(counter++), reqSubTypes);
@@ -216,7 +228,7 @@ public class AchievementPlus extends Achievement {
 					int counter = 1;
 					for(BaseRequirement t : typeReq){
 						JsonObject reqSubTypes = new JsonObject();
-						reqSubTypes.addProperty("item", t.getRequirementItem());
+						reqSubTypes.addProperty("item", t.getRequirementItemEntity());
 						reqSubTypes.addProperty("amount", t.getRequirementAmount());
 						reqSubTypes.addProperty("id", t.getRequirementItemID());
 						reqTypes.add("pickup_req_"+Integer.toString(counter++), reqSubTypes);
@@ -230,7 +242,7 @@ public class AchievementPlus extends Achievement {
 					int counter = 1;
 					for(BaseRequirement t : typeReq){
 						JsonObject reqSubTypes = new JsonObject();
-						reqSubTypes.addProperty("stat", t.getRequirementItem());
+						reqSubTypes.addProperty("stat", t.getRequirementItemEntity());
 						reqSubTypes.addProperty("amount", t.getRequirementAmount());
 						reqTypes.add("stat_req_"+Integer.toString(counter++), reqSubTypes);
 					}
@@ -243,7 +255,7 @@ public class AchievementPlus extends Achievement {
 					int counter = 1;
 					for(BaseRequirement t : typeReq){
 						JsonObject reqSubTypes = new JsonObject();
-						reqSubTypes.addProperty("entity", t.getRequirementItem());
+						reqSubTypes.addProperty("entity", t.getRequirementItemEntity());
 						reqSubTypes.addProperty("amount", t.getRequirementAmount());
 						reqTypes.add("kill_req_"+Integer.toString(counter++), reqSubTypes);
 					}
@@ -256,7 +268,7 @@ public class AchievementPlus extends Achievement {
 					int counter = 1;
 					for(BaseRequirement t : typeReq){
 						JsonObject reqSubTypes = new JsonObject();
-						reqSubTypes.addProperty("entity", t.getRequirementItem());
+						reqSubTypes.addProperty("entity", t.getRequirementItemEntity());
 						reqSubTypes.addProperty("amount", t.getRequirementAmount());
 						reqTypes.add("spawn_req_"+Integer.toString(counter++), reqSubTypes);
 					}
@@ -281,27 +293,31 @@ public class AchievementPlus extends Achievement {
 
 	public static class Requirements {
 		public abstract class BaseRequirement {
-			public BaseRequirement() {};
-			public String getRequirementItem(){ return "";}
-			public int getRequirementAmount() { return 0;}
-			public int getRequirementItemID() { return 0;}
+			public int aquired;
+			public int amount;
+			
+			BaseRequirement() {
+				aquired =0;
+				amount =0;
+			}
+			public abstract String getRequirementItemEntity();
+			public int getRequirementAmount() {return amount;}
+			public abstract int getRequirementItemID();
+			public void incrementTotal() {aquired++;}
+			public void incrementTotalBy(int amt) {aquired +=amt;}
+			public void setAquiredTo(int total) {aquired = total;}
 		}
 
 		public class CraftRequirement extends BaseRequirement {
 			public ItemStack item;
-			public int amount;
 			public int id;
 			
 			public CraftRequirement() {
 				item = null;
-				amount =0;
 				id =0;
 			}
 			
-			@Override
-			public String getRequirementItem(){ return item.getDisplayName();}
-			@Override
-			public int getRequirementAmount() { return amount;}
+			public String getRequirementItemEntity(){ return item.getDisplayName();}
 			@Override
 			public int getRequirementItemID() { return id;}
 			
@@ -310,19 +326,15 @@ public class AchievementPlus extends Achievement {
 
 		public class SmeltRequirement extends BaseRequirement {
 			public ItemStack item;
-			public int amount;
 			public int id;
 			
 			public SmeltRequirement() {
 				item = null;
-				amount =0;
 				id=0;
 			}
 			
 			@Override
-			public String getRequirementItem(){ return item.getDisplayName();}
-			@Override
-			public int getRequirementAmount() { return amount;}
+			public String getRequirementItemEntity(){ return item.getDisplayName();}
 			@Override
 			public int getRequirementItemID() { return id;}
 			
@@ -331,49 +343,46 @@ public class AchievementPlus extends Achievement {
 
 		public class KillRequirement extends BaseRequirement {
 			public String entityType;
-			public int amount;
 			
 			public KillRequirement() {
 				entityType = "";
-				amount =0;
 			}
 			
 			@Override
-			public String getRequirementItem(){ return entityType;}
+			public String getRequirementItemEntity(){ return entityType;}
+
 			@Override
-			public int getRequirementAmount() { return amount;}
+			public int getRequirementItemID() {
+				return 0;
+			}
 		}
 
 		public class SpawnRequirement extends BaseRequirement {
 			public String entityType;
-			public int amount;
 			
 			public SpawnRequirement() {
 				entityType = "";
-				amount =0;
 			}
 			
 			@Override
-			public String getRequirementItem(){ return entityType;}
+			public String getRequirementItemEntity(){ return entityType;}
+
 			@Override
-			public int getRequirementAmount() { return amount;}
+			public int getRequirementItemID() {
+				return 0;
+			}
 		}
 
 		public class PickupRequirement extends BaseRequirement {
 			public Item item;
-			public int amount;
 			public int id;
 			
 			public PickupRequirement() {
 				item = null;
-				amount =0;
 				id=0;
 			}
 			
-			@Override
-			public String getRequirementItem(){ return item.getUnlocalizedName().substring(5);}
-			@Override
-			public int getRequirementAmount() { return amount;}
+			public String getRequirementItemEntity(){ return item.getUnlocalizedName().substring(5);}
 			@Override
 			public int getRequirementItemID() { return id;}
 			
@@ -382,17 +391,18 @@ public class AchievementPlus extends Achievement {
 
 		public class StatRequirement extends BaseRequirement {
 			public StatBase eventStat;
-			public int amount;
 			
 			public StatRequirement() {
 				eventStat = null;
-				amount =0;
 			}
 			
 			@Override
-			public String getRequirementItem(){ return eventStat.toString();}
+			public String getRequirementItemEntity(){ return eventStat.toString();}
+
 			@Override
-			public int getRequirementAmount() { return amount;}
+			public int getRequirementItemID() {
+				return 0;
+			}
 		}
 
 		private ArrayList<BaseRequirement> requirements = new ArrayList();

@@ -4,9 +4,13 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityClientPlayerMP;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
 import net.minecraft.stats.Achievement;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.ChatStyle;
@@ -20,33 +24,46 @@ import java.util.ArrayList;
 import com.dyn.achievements.achievement.AchievementHandler;
 import com.dyn.achievements.achievement.AchievementPlus;
 import com.dyn.achievements.achievement.AchievementPlus.AchievementType;
+import com.dyn.achievements.achievement.AchievementPlus.Requirements.BaseRequirement;
 
 public class EventHandler {
 
 	@SubscribeEvent
 	public void craftingEvent(PlayerEvent.ItemCraftedEvent event) {
-		event.player.addChatComponentMessage(new ChatComponentTranslation("Crafted Item ", event.crafting.getItem())
-				.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)));
+		event.player.addChatComponentMessage(
+				new ChatComponentTranslation("Crafted Item " + event.crafting.getItem().getUnlocalizedName())
+						.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)));
 		ArrayList<AchievementPlus> ach = AchievementHandler.findAchievementByType(AchievementType.CRAFT);
 		if (event.crafting != null && ach != null) {
-			for (int i = 0; i < ach.size(); i++) {
-				// if (ach[i].getItemStack() != null && event.crafting.getItem()
-				// == ach[i].getEventItem().getItem()) {
-				// event.player.addStat(ach[i], 1);
-				// }
+			for (AchievementPlus a : AchievementHandler.itemIds.get(AchievementType.CRAFT)
+					.get(Item.getIdFromItem(event.crafting.getItem()))) {
+				for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.CRAFT)) {
+					if (r.getRequirementItemID() == Item.getIdFromItem(event.crafting.getItem())) {
+						if (r.aquired < r.amount)
+							r.incrementTotal();
+					}
+				}
 			}
 		}
 	}
 
 	@SubscribeEvent
 	public void smeltingEvent(PlayerEvent.ItemSmeltedEvent event) {
-		event.player.addChatComponentMessage(new ChatComponentTranslation("Smelted Item ", event.smelting.getItem())
-				.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)));
-		// if (event.smelting != null && ach.getEventItem() != null
-		// && event.smelting.getItem() == ach.getEventItem().getItem()) {
-		// event.player.addStat(ach, 1);
-		// }
-
+		event.player.addChatComponentMessage(
+				new ChatComponentTranslation("Smelted Item " + event.smelting.getItem().getUnlocalizedName())
+						.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)));
+		ArrayList<AchievementPlus> ach = AchievementHandler.findAchievementByType(AchievementType.SMELT);
+		if (event.smelting != null && ach != null) {
+			for (AchievementPlus a : AchievementHandler.itemIds.get(AchievementType.SMELT)
+					.get(Item.getIdFromItem(event.smelting.getItem()))) {
+				for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.SMELT)) {
+					if (r.getRequirementItemID() == Item.getIdFromItem(event.smelting.getItem())) {
+						if (r.aquired < r.amount)
+							r.incrementTotal();
+					}
+				}
+			}
+		}
 	}
 
 	@SubscribeEvent
@@ -54,42 +71,57 @@ public class EventHandler {
 		event.player.addChatComponentMessage(
 				new ChatComponentTranslation("Picked Up Item " + event.pickedUp.getEntityItem().getDisplayName())
 						.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)));
-		// if (event.pickedUp != null && event.pickedUp.getEntityItem() != null
-		// && event.pickedUp.getEntityItem().getItem() != null &&
-		// ach.getEventItem() != null
-		// && event.pickedUp.getEntityItem().getItem() == ach.getEventItem()) {
-		// event.player.addStat(ach, 1);
-		// }
+		ArrayList<AchievementPlus> ach = AchievementHandler.findAchievementByType(AchievementType.PICKUP);
+		if (event.pickedUp != null && ach != null) {
+			for (AchievementPlus a : AchievementHandler.itemIds.get(AchievementType.PICKUP)
+					.get(event.pickedUp.getEntityId())) {
+				for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.PICKUP)) {
+					if (r.getRequirementItemID() == event.pickedUp.getEntityId()) {
+						if (r.aquired < r.amount)
+							r.incrementTotal();
+					}
+				}
+			}
+		}
 	}
 
 	@SubscribeEvent
 	public void killEvent(LivingDeathEvent event) {
 		if (event.source != null && event.source.getEntity() != null) {
 			if (event.source.getEntity() instanceof EntityPlayer) {
-				// if (event.entityLiving != null && ach.getEntity() != null
-				// &&
-				// EntityList.getEntityString(event.entityLiving).equalsIgnoreCase(ach.getEntity()))
-				// {
-				// ((EntityPlayer) event.source.getEntity()).addStat(ach, 1);
-				// }
+				EntityPlayer player = (EntityPlayer) event.source.getEntity();
+				player.addChatComponentMessage(
+						new ChatComponentTranslation("Killed " + EntityList.getEntityString(event.entity))
+								.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)));
+				ArrayList<AchievementPlus> ach = AchievementHandler.findAchievementByType(AchievementType.KILL);
+				if (ach != null) {
+					for (AchievementPlus a : AchievementHandler.entityNames.get(AchievementType.KILL)
+							.get(EntityList.getEntityString(event.entity))) {
+						for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.KILL)) {
+							if (r.getRequirementItemEntity() == EntityList.getEntityString(event.entity)) {
+								if (r.aquired < r.amount){
+									System.out.println("Incrementing Total");
+									r.incrementTotal();
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	}
 
-	@SubscribeEvent
-	public void livingEvent(LivingEvent.LivingUpdateEvent event) {
-
-		if (event.entityLiving instanceof EntityPlayerMP) {
-
-			EntityPlayerMP player = (EntityPlayerMP) event.entityLiving;
-
-			// if (player.func_147099_x().writeStat(ach.getEventStat()) >=
-			// ach.getStatAmount()) {
-			// player.addStat(ach, 1);
-			// }
-
-		}
-	}
+	/*
+	 * @SubscribeEvent public void livingEvent(LivingEvent.LivingUpdateEvent
+	 * event) { EntityClientPlayerMP player =
+	 * Minecraft.getMinecraft().thePlayer; if(player!=null)
+	 * player.addChatComponentMessage( new ChatComponentTranslation("Spawned " +
+	 * EntityList.getStringFromID(event.entityLiving.getEntityId())
+	 * ).setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA))); if
+	 * (event.entityLiving instanceof EntityPlayerMP) {
+	 * 
+	 * } }
+	 */
 
 	// this is really dangerous as it happens every game tick,
 	// we either should find an alternative, thread this, or keep code as

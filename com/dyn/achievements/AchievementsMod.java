@@ -84,15 +84,14 @@ public class AchievementsMod {
 		kr.amount = 20;
 		r.addRequirement(kr);
 		
-		//Spawn
-		SpawnRequirement sp = r.new SpawnRequirement();
+		//Spawn - listener isnt working yet
+		/*SpawnRequirement sp = r.new SpawnRequirement();
 		sp.entityType = "Chicken";
 		sp.amount = 3;
-		r.addRequirement(sp);
+		r.addRequirement(sp);*/
 		
 		AchievementPlus test = new AchievementPlus(r, "test", "this is a test", 0, 0,
 				new ItemStack(Blocks.grass), null);
-		AchievementHandler.initalize();
 		
 		JsonObject ache = test.achievementToJson();
 		AchievementPlus test2 = new AchievementPlus();
