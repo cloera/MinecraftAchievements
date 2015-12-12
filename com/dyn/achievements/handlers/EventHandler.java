@@ -18,30 +18,37 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.player.AchievementEvent;
 
 import java.util.ArrayList;
 
 import com.dyn.achievements.achievement.AchievementHandler;
 import com.dyn.achievements.achievement.AchievementPlus;
 import com.dyn.achievements.achievement.AchievementPlus.AchievementType;
-import com.dyn.achievements.achievement.AchievementPlus.Requirements.BaseRequirement;
+import com.dyn.achievements.achievement.Requirements.BaseRequirement;
 
 public class EventHandler {
 
 	@SubscribeEvent
 	public void craftingEvent(PlayerEvent.ItemCraftedEvent event) {
 		event.player.addChatComponentMessage(
-				new ChatComponentTranslation("Crafted Item " + event.crafting.getItem().getUnlocalizedName())
+				new ChatComponentTranslation("Crafted Item " + event.crafting.getDisplayName() + ", " + event.getPhase().toString())
 						.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)));
 		ArrayList<AchievementPlus> ach = AchievementHandler.findAchievementByType(AchievementType.CRAFT);
 		if (event.crafting != null && ach != null) {
 			for (AchievementPlus a : AchievementHandler.itemIds.get(AchievementType.CRAFT)
 					.get(Item.getIdFromItem(event.crafting.getItem()))) {
-				for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.CRAFT)) {
-					if (r.getRequirementItemID() == Item.getIdFromItem(event.crafting.getItem())) {
-						if (r.aquired < r.amount)
-							r.incrementTotal();
+				if (!a.isAwarded()) {
+					for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.CRAFT)) {
+						if (r.getRequirementItemID() == Item.getIdFromItem(event.crafting.getItem())) {
+							if (r.getTotalAquired() < r.getTotalNeeded()) {
+								System.out.println("Incrementing Total");
+								r.incrementTotal();
+								System.out.println("Aquired: " + r.getTotalAquired() + " Needed: " + r.getTotalNeeded());
+							}
+						}
 					}
+					a.meetsRequirements(event.player);
 				}
 			}
 		}
@@ -50,17 +57,23 @@ public class EventHandler {
 	@SubscribeEvent
 	public void smeltingEvent(PlayerEvent.ItemSmeltedEvent event) {
 		event.player.addChatComponentMessage(
-				new ChatComponentTranslation("Smelted Item " + event.smelting.getItem().getUnlocalizedName())
+				new ChatComponentTranslation("Smelted Item " + event.smelting.getDisplayName() + ", " + event.getPhase().toString())
 						.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)));
 		ArrayList<AchievementPlus> ach = AchievementHandler.findAchievementByType(AchievementType.SMELT);
 		if (event.smelting != null && ach != null) {
 			for (AchievementPlus a : AchievementHandler.itemIds.get(AchievementType.SMELT)
 					.get(Item.getIdFromItem(event.smelting.getItem()))) {
-				for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.SMELT)) {
-					if (r.getRequirementItemID() == Item.getIdFromItem(event.smelting.getItem())) {
-						if (r.aquired < r.amount)
-							r.incrementTotal();
+				if (!a.isAwarded()) {
+					for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.SMELT)) {
+						if (r.getRequirementItemID() == Item.getIdFromItem(event.smelting.getItem())) {
+							if (r.getTotalAquired() < r.getTotalNeeded()) {
+								System.out.println("Incrementing Total");
+								r.incrementTotal();
+								System.out.println("Aquired: " + r.getTotalAquired() + " Needed: " + r.getTotalNeeded());
+							}
+						}
 					}
+					a.meetsRequirements(event.player);
 				}
 			}
 		}
@@ -74,12 +87,20 @@ public class EventHandler {
 		ArrayList<AchievementPlus> ach = AchievementHandler.findAchievementByType(AchievementType.PICKUP);
 		if (event.pickedUp != null && ach != null) {
 			for (AchievementPlus a : AchievementHandler.itemIds.get(AchievementType.PICKUP)
-					.get(event.pickedUp.getEntityId())) {
-				for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.PICKUP)) {
-					if (r.getRequirementItemID() == event.pickedUp.getEntityId()) {
-						if (r.aquired < r.amount)
-							r.incrementTotal();
+					.get(Item.getIdFromItem(event.pickedUp.getEntityItem().getItem()))) {
+				if (!a.isAwarded()) {
+					for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.PICKUP)) {
+						if (r.getRequirementItemID() == Item.getIdFromItem(event.pickedUp.getEntityItem().getItem())) {
+							if (r.getTotalAquired() < r.getTotalNeeded()) {
+								System.out.println("Incrementing Total");
+								r.incrementTotal();
+								System.out.println("Aquired: " + r.getTotalAquired() + " Needed: " + r.getTotalNeeded());
+							}
+						}
 					}
+					a.meetsRequirements(event.player);
+				} else {
+					System.out.println("Achievement Awarded");
 				}
 			}
 		}
@@ -97,13 +118,16 @@ public class EventHandler {
 				if (ach != null) {
 					for (AchievementPlus a : AchievementHandler.entityNames.get(AchievementType.KILL)
 							.get(EntityList.getEntityString(event.entity))) {
-						for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.KILL)) {
-							if (r.getRequirementItemEntity() == EntityList.getEntityString(event.entity)) {
-								if (r.aquired < r.amount){
-									System.out.println("Incrementing Total");
-									r.incrementTotal();
+						if (!a.isAwarded()) {
+							for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.KILL)) {
+								if (r.getRequirementItemEntity() == EntityList.getEntityString(event.entity)) {
+									if (r.getTotalAquired() < r.getTotalNeeded()) {
+										System.out.println("Incrementing Total");
+										r.incrementTotal();
+									}
 								}
 							}
+							a.meetsRequirements(player);
 						}
 					}
 				}
@@ -111,8 +135,14 @@ public class EventHandler {
 		}
 	}
 
+	
+	@SubscribeEvent
+	public void achievementEvent(AchievementEvent event){
+		System.out.println(event.achievement.statId);
+	}
+	
 	/*
-	 * @SubscribeEvent public void livingEvent(LivingEvent.LivingUpdateEvent
+	 * @SubscribeEvent public void spawnEvent(LivingEvent.LivingSpawnEvent
 	 * event) { EntityClientPlayerMP player =
 	 * Minecraft.getMinecraft().thePlayer; if(player!=null)
 	 * player.addChatComponentMessage( new ChatComponentTranslation("Spawned " +
@@ -126,14 +156,13 @@ public class EventHandler {
 	// this is really dangerous as it happens every game tick,
 	// we either should find an alternative, thread this, or keep code as
 	// minimal as possible
-	@SubscribeEvent
-	public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-		World playerWorld = event.player.worldObj;
-		if (playerWorld.isRaining()) {
-			event.player.addChatComponentMessage(new ChatComponentTranslation("Its Raining")
-					.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)));
-			// event.player.addStat(InitExample.itsRaining.getAchievement(), 1);
-		}
-	}
+	/*
+	 * @SubscribeEvent public void onPlayerTick(TickEvent.PlayerTickEvent event)
+	 * { World playerWorld = event.player.worldObj; if (playerWorld.isRaining())
+	 * { event.player.addChatComponentMessage(new ChatComponentTranslation(
+	 * "Its Raining") .setChatStyle(new
+	 * ChatStyle().setColor(EnumChatFormatting.AQUA))); //
+	 * event.player.addStat(InitExample.itsRaining.getAchievement(), 1); } }
+	 */
 
 }

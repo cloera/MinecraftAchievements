@@ -6,8 +6,8 @@ import net.minecraftforge.common.AchievementPage;
 import java.util.*;
 
 import com.dyn.achievements.achievement.AchievementPlus.AchievementType;
-import com.dyn.achievements.achievement.AchievementPlus.Requirements;
-import com.dyn.achievements.achievement.AchievementPlus.Requirements.BaseRequirement;
+import com.dyn.achievements.achievement.Requirements;
+import com.dyn.achievements.achievement.Requirements.BaseRequirement;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
@@ -55,7 +55,7 @@ public class AchievementHandler {
 	 * @param name String of achievement name
 	 * @return achievement object
 	 */
-	public static Achievement findAchievementByName(String name) {
+	public static AchievementPlus findAchievementByName(String name) {
 		return achievementsName.get(name);
 	}
 
