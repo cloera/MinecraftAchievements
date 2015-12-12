@@ -6,11 +6,9 @@ import net.minecraftforge.common.AchievementPage;
 import java.util.*;
 
 import com.dyn.achievements.achievement.AchievementPlus.AchievementType;
-import com.dyn.achievements.achievement.Requirements;
 import com.dyn.achievements.achievement.Requirements.BaseRequirement;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimap;
 
 /***
  * An event handler class for achievements.

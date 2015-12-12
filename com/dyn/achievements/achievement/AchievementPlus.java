@@ -1,9 +1,7 @@
 package com.dyn.achievements.achievement;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-import com.dyn.achievements.achievement.AchievementPlus.AchievementType;
 import com.dyn.achievements.achievement.Requirements.BaseRequirement;
 import com.dyn.achievements.achievement.Requirements.CraftRequirement;
 import com.dyn.achievements.achievement.Requirements.KillRequirement;
@@ -11,17 +9,9 @@ import com.dyn.achievements.achievement.Requirements.PickupRequirement;
 import com.dyn.achievements.achievement.Requirements.SmeltRequirement;
 import com.dyn.achievements.achievement.Requirements.SpawnRequirement;
 import com.dyn.server.http.ThreadedHttpPost;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import cpw.mods.fml.common.registry.LanguageRegistry;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.stats.Achievement;
-import net.minecraft.stats.StatBase;
-import net.minecraft.world.World;
 
 /***
  * AchievementPlus class modifies Achievement class in MineCraft source code.
@@ -29,13 +19,12 @@ import net.minecraft.world.World;
  * @author Dominic Amato
  *
  */
-public class AchievementPlus /*extends Achievement*/{
+public class AchievementPlus{
 
 	private Requirements requirements;
 	private String name;
 	private String desc;
-	private AchievementPlus parent;
-	//private Achievement achievement;
+	private int xCoord, yCoord;
 	
 	//optional but needed to award a badge online;
 	private int badgeId;
@@ -43,31 +32,23 @@ public class AchievementPlus /*extends Achievement*/{
 	private boolean awarded;
 
 	public AchievementPlus(){
-		//super("", "", 0, 0, Item.getItemById(0), null);
 		requirements = new Requirements();
 		name = "";
 		desc = "";
-		parent = null;
+		xCoord = yCoord = 0;
 		awarded = false;
 		badgeId = 0;
 	}
 	
-	public AchievementPlus(Requirements requirements, String name, String description, int xCoord, int yCoord,
-			ItemStack displayIcon, AchievementPlus parent, int badgeId) {
-		//if we want the text to look normal we need to make a .lang file that is associated with the name and description like so
-		// super("achievement.buildBootsGold", "buildBootsGold",
-		//super(name.toLowerCase(), description, xCoord, yCoord, displayIcon.getItem(), parent);
-		//this.achievement = new Achievement(name.toLowerCase(), description, xCoord, yCoord, displayIcon.getItem(), parent == null ? null : parent.getAchievement());
-		//this.achievement.registerStat();
+	public AchievementPlus(Requirements requirements, String name, String description, int xPos, int yPos, int badgeId) {
 		this.requirements = requirements;
 		AchievementHandler.registerAchievement(this);
-		
-		//this.registerStat();
-		
+				
 		this.name = name;
 		this.desc = description;
-		this.parent = parent;
 		this.badgeId = badgeId;
+		xCoord = xPos;
+		yCoord = yPos;
 		awarded = false;
 	}
 
@@ -89,29 +70,12 @@ public class AchievementPlus /*extends Achievement*/{
 	}
 
 	/***
-	 * Get Achievement object.
-	 * @return Achievement
-	 */
-	public AchievementPlus getAchievement() {
-		return this;
-	}
-
-	
-	/***
-	 * Overrides setSpecial() in Achievement class.
-	 */
-	public Achievement setSpecial() {
-		return this.setSpecial();
-	}
-
-	/***
 	 * Awards achievement to player.
 	 * @param world World
 	 * @param player EntityPlayer
 	 * @param itemStack ItemStack
 	 */
 	public void awardAchievement(EntityPlayer player) {
-		//player.addStat(this, 1);
 		new ThreadedHttpPost(badgeId);
 		awarded = true;
 	}
@@ -145,6 +109,8 @@ public class AchievementPlus /*extends Achievement*/{
 		try{
 			this.name = json.get("name").getAsString();
 			this.desc = json.get("desc").getAsString();
+			this.xCoord = json.get("x_coord").getAsInt();
+			this.yCoord = json.get("y_coord").getAsInt();
 			JsonObject req = (JsonObject) json.get("requirements");
 			if(req.has("craft_requirements")){
 				JsonObject reqType = (JsonObject) req.get("craft_requirements");
@@ -203,11 +169,7 @@ public class AchievementPlus /*extends Achievement*/{
 			}
 			if(json.has("badge_id"))
 				this.badgeId = json.get("badge_id").getAsInt();
-			if(json.get("parent")!=null){
-				//we need to find the achievement with the name of parent
-			}
-			//this.achievement = new Achievement(name.toLowerCase(), desc, 1, 1, Item.getItemById(0), null);
-
+			
 		} catch(Exception e){
 			e.printStackTrace();
 		}
@@ -217,6 +179,8 @@ public class AchievementPlus /*extends Achievement*/{
 		JsonObject reply = new JsonObject();
 		reply.addProperty("name", this.name);
 		reply.addProperty("desc", this.desc);
+		reply.addProperty("x_coord", this.xCoord);
+		reply.addProperty("y_coord", this.yCoord);
 		JsonObject req = new JsonObject();
 		boolean[] types = requirements.getRequirementTypes();
 		for(int i =0;i<6;i++){
@@ -310,10 +274,7 @@ public class AchievementPlus /*extends Achievement*/{
 		reply.add("requirements", req);
 		if(this.badgeId>0)
 			reply.addProperty("badge_id", this.badgeId);
-		if(this.parent != null){
-			reply.addProperty("parent", this.parent.getName());
-		}
-		
+	
 		return reply;
 	}
 	

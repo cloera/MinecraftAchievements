@@ -1,15 +1,11 @@
 package com.dyn.achievements;
 
-import com.dyn.achievements.achievement.AchievementHandler;
 import com.dyn.achievements.achievement.AchievementPlus;
-import com.dyn.achievements.achievement.AchievementPlus.AchievementType;
 import com.dyn.achievements.achievement.Requirements;
-import com.dyn.achievements.achievement.Requirements.BaseRequirement;
 import com.dyn.achievements.achievement.Requirements.CraftRequirement;
 import com.dyn.achievements.achievement.Requirements.KillRequirement;
 import com.dyn.achievements.achievement.Requirements.PickupRequirement;
 import com.dyn.achievements.achievement.Requirements.SmeltRequirement;
-import com.dyn.achievements.achievement.Requirements.SpawnRequirement;
 import com.dyn.achievements.handlers.*;
 import com.dyn.achievements.proxy.CommonProxy;
 import com.dyn.achievements.reference.Reference;
@@ -21,15 +17,10 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.block.Block;
-import net.minecraft.entity.EntityList;
-import net.minecraft.entity.passive.EntityCow;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.stats.StatBase;
 import net.minecraftforge.common.MinecraftForge;
 
-@Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION, guiFactory = Reference.GUI_FACTORY_CLASS)
+@Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION)
 public class AchievementsMod {
 
 	@Mod.Instance(Reference.MOD_ID)
@@ -64,7 +55,7 @@ public class AchievementsMod {
 		//Pick Up
 		PickupRequirement pr = r.new PickupRequirement();
 		pr.setFromItemId(344); //egg
-		pr.setAmountNeeded(1);
+		pr.setAmountNeeded(10);
 		r.addRequirement(pr);
 		
 		//Stat - Not Implmented Yet
@@ -85,8 +76,7 @@ public class AchievementsMod {
 		sp.amount = 3;
 		r.addRequirement(sp);*/
 		
-		AchievementPlus test = new AchievementPlus(r, "test", "this is a test", 0, 0,
-				new ItemStack(Blocks.grass), null, 2168);
+		AchievementPlus test = new AchievementPlus(r, "test", "this is a test", 0, 0, 2168);
 		
 		JsonObject ache = test.achievementToJson();
 		AchievementPlus test2 = new AchievementPlus();

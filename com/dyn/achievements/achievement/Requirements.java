@@ -41,7 +41,7 @@ public class Requirements {
 		public void setAquiredTo(int total) {
 			aquired = total;
 		}
-		
+
 		public void setAmountNeeded(int total) {
 			amount = total;
 		}
@@ -56,6 +56,7 @@ public class Requirements {
 			id = 0;
 		}
 
+		@Override
 		public String getRequirementItemEntity() {
 			return item.getDisplayName();
 		}
@@ -141,6 +142,7 @@ public class Requirements {
 			id = 0;
 		}
 
+		@Override
 		public String getRequirementItemEntity() {
 			return item.getUnlocalizedName().substring(5);
 		}
