@@ -8,7 +8,7 @@ import com.dyn.achievements.achievement.Requirements.KillRequirement;
 import com.dyn.achievements.achievement.Requirements.PickupRequirement;
 import com.dyn.achievements.achievement.Requirements.SmeltRequirement;
 import com.dyn.achievements.achievement.Requirements.SpawnRequirement;
-import com.dyn.server.http.ThreadedHttpPost;
+import com.dyn.server.http.PostBadge;
 import com.google.gson.JsonObject;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -76,7 +76,7 @@ public class AchievementPlus{
 	 * @param itemStack ItemStack
 	 */
 	public void awardAchievement(EntityPlayer player) {
-		new ThreadedHttpPost(badgeId);
+		new PostBadge(badgeId, "", "", "");
 		awarded = true;
 	}
 	
