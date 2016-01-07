@@ -106,11 +106,16 @@ public class AchievementsMod {
 		sp.entityType = "Chicken";
 		sp.amount = 3;
 		r.addRequirement(sp);*/
+		AchievementPlus test = new AchievementPlus(r, "My Test Achievement", "this is a test to make sure that the achievement system works", 2168);
+
+		for(int i=1;i<100;i++){
+			AchievementPlus test2 = new AchievementPlus(r, "Achievement " + i, "this is a test", 2168);
+		}
 		
-		AchievementPlus test = new AchievementPlus(r, "My Test Achievement", "this is a test to make sure that the achievement system works", 0, 0, 2168);
+		/*JsonObject ache = test.achievementToJson();
+		AchievementPlus test3 = new AchievementPlus();
+		test3.JsonToAchievement(ache);*/
 		
-		JsonObject ache = test.achievementToJson();
-		AchievementPlus test2 = new AchievementPlus();
 	}
 	
 	@SubscribeEvent

@@ -9,6 +9,8 @@ import com.dyn.achievements.achievement.AchievementPlus.AchievementType;
 import com.dyn.achievements.achievement.Requirements.BaseRequirement;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import com.rabbit.gui.component.list.DisplayList;
+import com.rabbit.gui.component.list.entries.StringEntry;
 
 /***
  * An event handler class for achievements.
@@ -56,7 +58,22 @@ public class AchievementHandler {
 	public static AchievementPlus findAchievementByName(String name) {
 		return achievementsName.get(name);
 	}
-
+	
+	/***
+	 * Finds achievements by name.
+	 * @param name String of achievement name
+	 * @return list of achievement objects containing name
+	 */
+	public static List<AchievementPlus> findAchievementsByName(String name) {
+		List<AchievementPlus> achList = new ArrayList();
+		for (AchievementPlus achs : achievementsName.values()) {
+			if(achs.getName().contains(name)){
+				achList.add(achs);
+			}
+		}
+		return achList;
+	}
+	
 	/***
 	 * Find all achievements of given type.
 	 * @param type AchievementType object

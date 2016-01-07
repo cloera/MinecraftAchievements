@@ -24,7 +24,6 @@ public class AchievementPlus{
 	private Requirements requirements;
 	private String name;
 	private String desc;
-	private int xCoord, yCoord;
 	
 	//optional but needed to award a badge online;
 	private int badgeId;
@@ -35,21 +34,18 @@ public class AchievementPlus{
 		requirements = new Requirements();
 		name = "";
 		desc = "";
-		xCoord = yCoord = 0;
 		awarded = false;
 		badgeId = 0;
 	}
 	
-	public AchievementPlus(Requirements requirements, String name, String description, int xPos, int yPos, int badgeId) {
+	public AchievementPlus(Requirements requirements, String name, String description, int badgeId) {
 		this.requirements = requirements;
-		AchievementHandler.registerAchievement(this);
-				
 		this.name = name;
 		this.desc = description;
 		this.badgeId = badgeId;
-		xCoord = xPos;
-		yCoord = yPos;
 		awarded = false;
+		AchievementHandler.registerAchievement(this);
+
 	}
 
 	/***
@@ -109,8 +105,8 @@ public class AchievementPlus{
 		try{
 			this.name = json.get("name").getAsString();
 			this.desc = json.get("desc").getAsString();
-			this.xCoord = json.get("x_coord").getAsInt();
-			this.yCoord = json.get("y_coord").getAsInt();
+			/*this.xCoord = json.get("x_coord").getAsInt();
+			this.yCoord = json.get("y_coord").getAsInt();*/
 			JsonObject req = (JsonObject) json.get("requirements");
 			if(req.has("craft_requirements")){
 				JsonObject reqType = (JsonObject) req.get("craft_requirements");
@@ -169,7 +165,7 @@ public class AchievementPlus{
 			}
 			if(json.has("badge_id"))
 				this.badgeId = json.get("badge_id").getAsInt();
-			
+			AchievementHandler.registerAchievement(this);
 		} catch(Exception e){
 			e.printStackTrace();
 		}
@@ -179,8 +175,8 @@ public class AchievementPlus{
 		JsonObject reply = new JsonObject();
 		reply.addProperty("name", this.name);
 		reply.addProperty("desc", this.desc);
-		reply.addProperty("x_coord", this.xCoord);
-		reply.addProperty("y_coord", this.yCoord);
+		/*reply.addProperty("x_coord", this.xCoord);
+		reply.addProperty("y_coord", this.yCoord);*/
 		JsonObject req = new JsonObject();
 		boolean[] types = requirements.getRequirementTypes();
 		for(int i =0;i<6;i++){

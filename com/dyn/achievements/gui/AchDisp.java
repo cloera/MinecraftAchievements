@@ -2,24 +2,19 @@ package com.dyn.achievements.gui;
 
 import java.util.ArrayList;
 
-import com.dyn.achievements.achievement.AchievementHandler;
 import com.dyn.achievements.achievement.AchievementPlus;
 import com.dyn.achievements.achievement.AchievementPlus.AchievementType;
-import com.dyn.achievements.achievement.Requirements;
 import com.dyn.achievements.achievement.Requirements.BaseRequirement;
-import com.rabbit.gui.component.control.PictureButton;
-import com.rabbit.gui.component.control.TextBox;
+import com.rabbit.gui.background.DefaultBackground;
+import com.rabbit.gui.component.control.Button;
 import com.rabbit.gui.component.display.Picture;
 import com.rabbit.gui.component.display.TextLabel;
-import com.rabbit.gui.component.list.DisplayList;
 import com.rabbit.gui.component.list.ScrollableDisplayList;
 import com.rabbit.gui.component.list.entries.ListEntry;
 import com.rabbit.gui.component.list.entries.StringEntry;
 import com.rabbit.gui.render.TextAlignment;
 import com.rabbit.gui.show.Show;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.util.ResourceLocation;
 
 public class AchDisp extends Show {
@@ -28,7 +23,7 @@ public class AchDisp extends Show {
 	ResourceLocation texture;
 
 	public AchDisp(AchievementPlus achievement, ResourceLocation picture) {
-		// this.setBackground(new DefaultBackground());
+		this.setBackground(new DefaultBackground());
 		this.title = "Achievement Gui";
 		this.achievement = achievement;
 		this.texture = picture;
@@ -96,6 +91,9 @@ public class AchDisp extends Show {
 
 		this.registerComponent(new ScrollableDisplayList((int) (this.width * .5), (int) (this.height * .45),
 				this.width / 3, 100, 15, ulist));
+
+		this.registerComponent(new Button(this.width / 6, (int) (this.height * .8), 40, 20, "Back")
+				.setClickListener(but -> this.getStage().displayPrevious()));
 
 		// The background
 		this.registerComponent(new Picture(this.width / 8, (int) (this.height * .05), (int) (this.width * (6.0 / 8.0)),
