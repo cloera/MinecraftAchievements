@@ -48,42 +48,42 @@ public class AchDisp extends Show {
 			ulist.add(new StringEntry("-Craft-"));
 		for (BaseRequirement r : achievement.getRequirements().getRequirementsByType(AchievementType.CRAFT)) {
 			ulist.add(new StringEntry(
-					r.getRequirementItemEntity() + " - " + r.getTotalAquired() + "/" + r.getTotalNeeded()));
+					r.getRequirementEntityName() + " - " + r.getTotalAquired() + "/" + r.getTotalNeeded()));
 		}
 
 		if (achievement.hasRequirementOfType(AchievementType.SMELT))
 			ulist.add(new StringEntry("-Smelt-"));
 		for (BaseRequirement r : achievement.getRequirements().getRequirementsByType(AchievementType.SMELT)) {
 			ulist.add(new StringEntry(
-					r.getRequirementItemEntity() + " - " + r.getTotalAquired() + "/" + r.getTotalNeeded()));
+					r.getRequirementEntityName() + " - " + r.getTotalAquired() + "/" + r.getTotalNeeded()));
 		}
 
 		if (achievement.hasRequirementOfType(AchievementType.PICKUP))
 			ulist.add(new StringEntry("-Pickup-"));
 		for (BaseRequirement r : achievement.getRequirements().getRequirementsByType(AchievementType.PICKUP)) {
 			ulist.add(new StringEntry(
-					r.getRequirementItemEntity() + " - " + r.getTotalAquired() + "/" + r.getTotalNeeded()));
+					r.getRequirementEntityName() + " - " + r.getTotalAquired() + "/" + r.getTotalNeeded()));
 		}
 
 		if (achievement.hasRequirementOfType(AchievementType.STAT))
 			ulist.add(new StringEntry("-Special-"));
 		for (BaseRequirement r : achievement.getRequirements().getRequirementsByType(AchievementType.STAT)) {
 			ulist.add(new StringEntry(
-					r.getRequirementItemEntity() + " - " + r.getTotalAquired() + "/" + r.getTotalNeeded()));
+					r.getRequirementEntityName() + " - " + r.getTotalAquired() + "/" + r.getTotalNeeded()));
 		}
 
 		if (achievement.hasRequirementOfType(AchievementType.KILL))
 			ulist.add(new StringEntry("-Kill-"));
 		for (BaseRequirement r : achievement.getRequirements().getRequirementsByType(AchievementType.KILL)) {
 			ulist.add(new StringEntry(
-					r.getRequirementItemEntity() + " - " + r.getTotalAquired() + "/" + r.getTotalNeeded()));
+					r.getRequirementEntityName() + " - " + r.getTotalAquired() + "/" + r.getTotalNeeded()));
 		}
 
 		if (achievement.hasRequirementOfType(AchievementType.SPAWN))
 			ulist.add(new StringEntry("-Spawn-"));
 		for (BaseRequirement r : achievement.getRequirements().getRequirementsByType(AchievementType.SPAWN)) {
 			ulist.add(new StringEntry(
-					r.getRequirementItemEntity() + " - " + r.getTotalAquired() + "/" + r.getTotalNeeded()));
+					r.getRequirementEntityName() + " - " + r.getTotalAquired() + "/" + r.getTotalNeeded()));
 		}
 
 		this.registerComponent(new TextLabel((int) (this.width * .5), (int) (this.height * .4), this.width / 3, 20,
@@ -97,7 +97,7 @@ public class AchDisp extends Show {
 
 		// The background
 		this.registerComponent(new Picture(this.width / 8, (int) (this.height * .05), (int) (this.width * (6.0 / 8.0)),
-				(int) (this.height * .9), new ResourceLocation("tutorial", "textures/gui/background3.png")));
+				(int) (this.height * .9), new ResourceLocation("dyn", "textures/gui/background3.png")));
 	}
 
 }

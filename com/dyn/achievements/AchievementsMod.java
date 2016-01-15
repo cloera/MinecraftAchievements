@@ -15,7 +15,15 @@ import com.dyn.achievements.proxy.Proxy;
 import com.dyn.achievements.reference.Reference;
 import com.google.gson.JsonObject;
 import com.rabbit.gui.GuiFoundation;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiChat;
+import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.Configuration;
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
@@ -24,19 +32,11 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.InputEvent;
-import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiChat;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.init.Blocks;
-import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.Configuration;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION)
 public class AchievementsMod {
 
-	public static KeyBinding guiKey;
+	public static KeyBinding achievementKey;
 	
 	@Mod.Instance(Reference.MOD_ID)
 	public static AchievementsMod instance;
@@ -59,9 +59,9 @@ public class AchievementsMod {
 
 		FMLCommonHandler.instance().bus().register(this);
 
-		this.guiKey = new KeyBinding("key.toggle.achievementui", Keyboard.KEY_N, "key.categories.toggle");
+		AchievementsMod.achievementKey = new KeyBinding("key.toggle.achievementui", Keyboard.KEY_N, "key.categories.toggle");
 
-		ClientRegistry.registerKeyBinding(this.guiKey);
+		ClientRegistry.registerKeyBinding(AchievementsMod.achievementKey);
 		
 		FMLCommonHandler.instance().bus().register(new EventHandler());
 		MinecraftForge.EVENT_BUS.register(new EventHandler());
@@ -73,19 +73,21 @@ public class AchievementsMod {
 		
 		//Crafting
 		CraftRequirement cr2 = r.new CraftRequirement();
-		cr2.setFromItemId(Block.getIdFromBlock(Blocks.oak_stairs));
+		ItemStack is = new ItemStack(Blocks.wool, 1, 4);
+		cr2.setFromItemId(Item.getIdFromItem(is.getItem()), is.getItemDamage());
 		cr2.setAmountNeeded(1);
 		r.addRequirement(cr2);
 		
 		//Smelting
 		SmeltRequirement sr = r.new SmeltRequirement();
-		sr.setFromItemId(265); //iron ingot
+		sr.setFromItemId(265, 0); //iron ingot
 		sr.setAmountNeeded(1);
 		r.addRequirement(sr);
 		
 		//Pick Up
 		PickupRequirement pr = r.new PickupRequirement();
-		pr.setFromItemId(344); //egg
+		is = new ItemStack(Items.egg);
+		pr.setFromItemId(Item.getIdFromItem(is.getItem()), is.getItemDamage()); //egg
 		pr.setAmountNeeded(10);
 		r.addRequirement(pr);
 		
@@ -106,15 +108,19 @@ public class AchievementsMod {
 		sp.entityType = "Chicken";
 		sp.amount = 3;
 		r.addRequirement(sp);*/
-		AchievementPlus test = new AchievementPlus(r, "My Test Achievement", "this is a test to make sure that the achievement system works", 2168);
-
+		
+		int idCount = 0;
+		
+		AchievementPlus test = new AchievementPlus(r, "My Test Achievement", "this is a test to make sure that the achievement system works", 2168, idCount++, 0, "", null);
+		AchievementPlus test2 = new AchievementPlus();;
 		for(int i=1;i<100;i++){
-			AchievementPlus test2 = new AchievementPlus(r, "Achievement " + i, "this is a test", 2168);
+			test2 = new AchievementPlus(Requirements.getCopy(r), "Achievement " + i, "this is a test", 2168, idCount++, 0, "", test);
 		}
 		
-		/*JsonObject ache = test.achievementToJson();
-		AchievementPlus test3 = new AchievementPlus();
-		test3.JsonToAchievement(ache);*/
+		JsonObject ache = test2.achievementToJson();
+		System.out.println(ache);
+		//AchievementPlus test3 = new AchievementPlus();
+		//test3.JsonToAchievement(ache);
 		
 	}
 	
@@ -124,7 +130,7 @@ public class AchievementsMod {
 		if ((Minecraft.getMinecraft().currentScreen instanceof GuiChat)) {
 			return;
 		}
-		if (this.guiKey.getIsKeyPressed()) {
+		if (AchievementsMod.achievementKey.isPressed()) {
 				GuiFoundation.display(new AchHome());
 		}
 	}
