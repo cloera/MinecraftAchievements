@@ -3,7 +3,7 @@ package com.dyn.achievements.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dyn.achievements.achievement.AchievementHandler;
+import com.dyn.achievements.AchievementsMod;
 import com.dyn.achievements.achievement.AchievementPlus;
 import com.rabbit.gui.background.DefaultBackground;
 import com.rabbit.gui.component.control.TextBox;
@@ -36,7 +36,7 @@ public class AchHome extends Show {
 
 		List<GridEntry> entries = new ArrayList();
 
-		for (AchievementPlus a : AchievementHandler.getAllAchievements()) {
+		for (AchievementPlus a : AchievementsMod.achievementHandler.getAllAchievements()) {
 			List<String> hoverText = new ArrayList();
 			hoverText.add(a.getName());
 			hoverText.add(a.getDescription());
@@ -64,7 +64,7 @@ public class AchHome extends Show {
 		if (textbox.getId() == "achsearch") {
 			achievementGrid.clear();
 			if(textbox.getText().isEmpty()){
-				for (AchievementPlus a : AchievementHandler.getAllAchievements()) {
+				for (AchievementPlus a : AchievementsMod.achievementHandler.getAllAchievements()) {
 					List<String> hoverText = new ArrayList();
 					hoverText.add(a.getName());
 					hoverText.add(a.getDescription());
@@ -74,7 +74,7 @@ public class AchHome extends Show {
 									.getStage().display(new AchDisp(a, imgTexture))));
 				}
 			} else {
-				for (AchievementPlus a : AchievementHandler.findAchievementsByName(textbox.getText())) {
+				for (AchievementPlus a : AchievementsMod.achievementHandler.findAchievementsByName(textbox.getText())) {
 					List<String> hoverText = new ArrayList();
 					hoverText.add(a.getName());
 					hoverText.add(a.getDescription());

@@ -206,10 +206,15 @@ public class Requirements {
 		}
 	}
 
-	private ArrayList<BaseRequirement> requirements = new ArrayList();;
+	private ArrayList<BaseRequirement> requirements = new ArrayList();
+	public int id;
 
 	public Requirements() {
+		id = (int) (1000*Math.random());
+	}
 	
+	public int getId(){
+		return id;
 	}
 	
 	public static Requirements getCopy(Requirements r){

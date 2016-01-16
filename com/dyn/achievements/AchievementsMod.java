@@ -1,48 +1,38 @@
 package com.dyn.achievements;
 
+import java.io.InputStreamReader;
+import java.net.URL;
+
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.input.Keyboard;
 
 import com.dyn.achievements.achievement.AchievementPlus;
-import com.dyn.achievements.achievement.Requirements;
-import com.dyn.achievements.achievement.Requirements.CraftRequirement;
-import com.dyn.achievements.achievement.Requirements.KillRequirement;
-import com.dyn.achievements.achievement.Requirements.PickupRequirement;
-import com.dyn.achievements.achievement.Requirements.SmeltRequirement;
-import com.dyn.achievements.gui.AchHome;
 import com.dyn.achievements.handlers.*;
 import com.dyn.achievements.proxy.Proxy;
 import com.dyn.achievements.reference.Reference;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.rabbit.gui.GuiFoundation;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiChat;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
+
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
-import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.InputEvent;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION)
 public class AchievementsMod {
-
-	public static KeyBinding achievementKey;
 	
 	@Mod.Instance(Reference.MOD_ID)
 	public static AchievementsMod instance;
 
 	@SidedProxy(clientSide = Reference.CLIENT_PROXY_CLASS, serverSide = Reference.SERVER_PROXY_CLASS)
 	public static Proxy proxy;
+	
+	public static AchievementHandler achievementHandler = new AchievementHandler();
 	
 	public static Logger logger;
 
@@ -56,20 +46,31 @@ public class AchievementsMod {
 		} catch (RuntimeException e) {
 			logger.warn(e);
 		}
-
-		FMLCommonHandler.instance().bus().register(this);
-
-		AchievementsMod.achievementKey = new KeyBinding("key.toggle.achievementui", Keyboard.KEY_N, "key.categories.toggle");
-
-		ClientRegistry.registerKeyBinding(AchievementsMod.achievementKey);
 		
-		FMLCommonHandler.instance().bus().register(new EventHandler());
-		MinecraftForge.EVENT_BUS.register(new EventHandler());
+		try {
+            // Download the JSON into a json list
+            URL url = new URL("https://dl.dropboxusercontent.com/u/33377940/test.json");
+            JsonParser parser = new JsonParser();
+            JsonElement element = parser.parse(new JsonReader(new InputStreamReader(url.openStream())));
+            JsonObject overallObject = element.getAsJsonObject(); //we might not need to do this but eh it works
+            JsonArray jsonA =  overallObject.get("achievements").getAsJsonArray();
+            for(JsonElement ach : jsonA){
+            	AchievementPlus.JsonToAchievement(ach.getAsJsonObject());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Json Parsing Failed");
+        }
+		
+		proxy.init();
 	}
 
 	@Mod.EventHandler
 	public void init(FMLInitializationEvent event) {
-		Requirements r = new Requirements();
+		achievementHandler
+		.addAchievementPage("DYN Achievements", achievementHandler
+				.getAllAchievements());
+		/*Requirements r = new Requirements();
 		
 		//Crafting
 		CraftRequirement cr2 = r.new CraftRequirement();
@@ -92,10 +93,10 @@ public class AchievementsMod {
 		r.addRequirement(pr);
 		
 		//Stat - Not Implmented Yet
-		/*StatRequirement st = r.new StatRequirement();
+		StatRequirement st = r.new StatRequirement();
 		st.eventStat = StatBase
 		st.amount = 10;
-		r.addRequirement(st);*/
+		r.addRequirement(st);
 				
 		//Kill
 		KillRequirement kr = r.new KillRequirement();
@@ -104,34 +105,22 @@ public class AchievementsMod {
 		r.addRequirement(kr);
 		
 		//Spawn - Not Implmented Yet
-		/*SpawnRequirement sp = r.new SpawnRequirement();
+		SpawnRequirement sp = r.new SpawnRequirement();
 		sp.entityType = "Chicken";
 		sp.amount = 3;
-		r.addRequirement(sp);*/
+		r.addRequirement(sp);
 		
 		int idCount = 0;
 		
 		AchievementPlus test = new AchievementPlus(r, "My Test Achievement", "this is a test to make sure that the achievement system works", 2168, idCount++, 0, "", null);
-		AchievementPlus test2 = new AchievementPlus();;
-		for(int i=1;i<100;i++){
-			test2 = new AchievementPlus(Requirements.getCopy(r), "Achievement " + i, "this is a test", 2168, idCount++, 0, "", test);
+		//AchievementPlus test2 = new AchievementPlus();;
+		for(int i=1;i<5;i++){
+			test = new AchievementPlus(Requirements.getCopy(r), "Achievement " + i, "this is a test", 2168, idCount++, 0, "", test);
 		}
 		
-		JsonObject ache = test2.achievementToJson();
+		JsonObject ache = test.achievementToJson();
 		System.out.println(ache);
-		//AchievementPlus test3 = new AchievementPlus();
-		//test3.JsonToAchievement(ache);
+		AchievementPlus test3 = test.JsonToAchievement(ache);*/
 		
-	}
-	
-	@SubscribeEvent
-	public void onKeyInput(InputEvent.KeyInputEvent event) {
-
-		if ((Minecraft.getMinecraft().currentScreen instanceof GuiChat)) {
-			return;
-		}
-		if (AchievementsMod.achievementKey.isPressed()) {
-				GuiFoundation.display(new AchHome());
-		}
 	}
 }

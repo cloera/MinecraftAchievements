@@ -1,10 +1,11 @@
-package com.dyn.achievements.achievement;
+package com.dyn.achievements.handlers;
 
 import net.minecraft.stats.Achievement;
 import net.minecraftforge.common.AchievementPage;
 
 import java.util.*;
 
+import com.dyn.achievements.achievement.AchievementPlus;
 import com.dyn.achievements.achievement.AchievementPlus.AchievementType;
 import com.dyn.achievements.achievement.Requirements.BaseRequirement;
 import com.google.common.collect.ArrayListMultimap;
@@ -16,7 +17,7 @@ import com.google.common.collect.ListMultimap;
  * @author Dominic Amato
  *
  */
-public class AchievementHandler {
+public class StaticAchievementHandler {
 
 	public static Map<String, AchievementPage> achievementPages = new HashMap();
 	public static ArrayList<AchievementPlus> achievements = new ArrayList();
@@ -201,7 +202,8 @@ public class AchievementHandler {
 			throw new RuntimeException("The achievement with the name " + achievement.getName() + " already exists!");
 		}*/
 		achievementsName.put(achievement.getName(), achievement);
-
+		achievement.registerStat();
+		
 		registerAchievementRequirementTypes(achievement);
 		parseRequirementItemNames(achievement);
 		parseRequirementEntityNames(achievement);

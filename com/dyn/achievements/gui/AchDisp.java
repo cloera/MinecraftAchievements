@@ -15,6 +15,7 @@ import com.rabbit.gui.component.list.entries.StringEntry;
 import com.rabbit.gui.render.TextAlignment;
 import com.rabbit.gui.show.Show;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 
 public class AchDisp extends Show {
@@ -88,12 +89,20 @@ public class AchDisp extends Show {
 
 		this.registerComponent(new TextLabel((int) (this.width * .5), (int) (this.height * .4), this.width / 3, 20,
 				"Requirements", TextAlignment.CENTER));
+		
+		if(achievement.isAwarded()){
+			this.registerComponent(new TextLabel((int) (this.width * .2), (int) (this.height * .4), this.width / 3, 20,
+					"Achieved!", TextAlignment.CENTER));
+		}
 
 		this.registerComponent(new ScrollableDisplayList((int) (this.width * .5), (int) (this.height * .45),
 				this.width / 3, 100, 15, ulist));
 
 		this.registerComponent(new Button(this.width / 6, (int) (this.height * .8), 40, 20, "Back")
 				.setClickListener(but -> this.getStage().displayPrevious()));
+		
+		this.registerComponent(new Button(this.width / 6, (int) (this.height * .7), 60, 20, "Award")
+				.setClickListener(but -> {achievement.awardAchievement(Minecraft.getMinecraft().thePlayer);}));
 
 		// The background
 		this.registerComponent(new Picture(this.width / 8, (int) (this.height * .05), (int) (this.width * (6.0 / 8.0)),
