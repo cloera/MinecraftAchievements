@@ -3,7 +3,6 @@ package com.dyn.achievements.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dyn.achievements.AchievementsMod;
 import com.dyn.achievements.achievement.AchievementPlus;
 import com.dyn.achievements.handlers.AchievementHandler;
 import com.rabbit.gui.background.DefaultBackground;

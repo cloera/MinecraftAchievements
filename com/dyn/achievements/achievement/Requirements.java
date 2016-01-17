@@ -114,13 +114,11 @@ public class Requirements {
 		public SmeltRequirement() {
 			super();
 			this.item = null;
-			super.item_id = 0;
 		}
 
 		public SmeltRequirement(SmeltRequirement sr) {
 			super(sr);
 			this.item = sr.item;
-			super.item_id = sr.getRequirementItemID();
 		}
 
 		@Override

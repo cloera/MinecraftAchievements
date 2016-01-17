@@ -2,7 +2,6 @@ package com.dyn.achievements.achievement;
 
 import java.util.ArrayList;
 
-import com.dyn.achievements.AchievementsMod;
 import com.dyn.achievements.achievement.Requirements.BaseRequirement;
 import com.dyn.achievements.achievement.Requirements.CraftRequirement;
 import com.dyn.achievements.achievement.Requirements.KillRequirement;

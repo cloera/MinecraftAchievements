@@ -21,7 +21,8 @@ public class AchievementHandler {
 
 	private static Map<String, AchievementPage> achievementPages = new HashMap();
 	private static ArrayList<AchievementPlus> achievements = new ArrayList();
-	private static Map<String, AchievementPlus> achievementsName = new HashMap();
+	private static Map<String, AchievementPlus> achievementNames = new HashMap();
+	private static Map<Integer, AchievementPlus> achievementIds = new HashMap();
 	// currently achievements can have mixed requirements so this doesnt work
 	private static Map<AchievementType, ArrayList<AchievementPlus>> achievementsType = new HashMap();
 	private static Map<AchievementType, ListMultimap<String, AchievementPlus>> itemNames = new HashMap();
@@ -55,7 +56,7 @@ public class AchievementHandler {
 	 * @return achievement object
 	 */
 	public static AchievementPlus findAchievementByName(String name) {
-		return achievementsName.get(name);
+		return achievementNames.get(name);
 	}
 	
 	/***
@@ -65,12 +66,16 @@ public class AchievementHandler {
 	 */
 	public static List<AchievementPlus> findAchievementsByName(String name) {
 		List<AchievementPlus> achList = new ArrayList();
-		for (AchievementPlus achs : achievementsName.values()) {
-			if(achs.getName().contains(name)){
+		for (AchievementPlus achs : achievementNames.values()) {
+			if (achs.getName().contains(name)) {
 				achList.add(achs);
 			}
 		}
 		return achList;
+	}
+	
+	public static AchievementPlus findAchievementById(int id) {
+		return achievementIds.get(id);
 	}
 	
 	/***
@@ -210,7 +215,8 @@ public class AchievementHandler {
 		/*if (achievementsName.get(achievement.getName()) != null) {
 			throw new RuntimeException("The achievement with the name " + achievement.getName() + " already exists!");
 		}*/
-		achievementsName.put(achievement.getName(), achievement);
+		achievementNames.put(achievement.getName(), achievement);
+		achievementIds.put(achievement.getId(), achievement);
 		achievement.registerStat();
 		
 		registerAchievementRequirementTypes(achievement);

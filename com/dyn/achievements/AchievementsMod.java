@@ -6,12 +6,6 @@ import java.net.URL;
 import org.apache.logging.log4j.Logger;
 
 import com.dyn.achievements.achievement.AchievementPlus;
-import com.dyn.achievements.achievement.Requirements;
-import com.dyn.achievements.achievement.AchievementPlus.AchievementType;
-import com.dyn.achievements.achievement.Requirements.CraftRequirement;
-import com.dyn.achievements.achievement.Requirements.KillRequirement;
-import com.dyn.achievements.achievement.Requirements.PickupRequirement;
-import com.dyn.achievements.achievement.Requirements.SmeltRequirement;
 import com.dyn.achievements.handlers.*;
 import com.dyn.achievements.proxy.Proxy;
 import com.dyn.achievements.reference.Reference;
@@ -21,13 +15,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
-import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -41,9 +29,6 @@ public class AchievementsMod {
 
 	@SidedProxy(clientSide = Reference.CLIENT_PROXY_CLASS, serverSide = Reference.SERVER_PROXY_CLASS)
 	public static Proxy proxy;
-
-	// public static AchievementHandler achievementHandler = new
-	// AchievementHandler();
 
 	public static Logger logger;
 
@@ -146,7 +131,7 @@ public class AchievementsMod {
 		JsonObject ache = new AchievementPlus(r, "My Test Achievement",
 				"this is a test to make sure that the achievement system works", 0, 0, 2168, idCount++, 0, "", null,
 				false).achievementToJson();
-		System.out.println(ache);*/
+		System.out.println(ache);
 		
 		JsonArray jArray = new JsonArray();
 		for (AchievementPlus a : AchievementHandler.getAllAchievements()) {

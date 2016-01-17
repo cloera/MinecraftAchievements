@@ -2,14 +2,16 @@ package com.dyn.achievements.handlers;
 
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 
-import com.dyn.achievements.AchievementsMod;
 import com.dyn.achievements.achievement.AchievementPlus;
 import com.dyn.achievements.achievement.AchievementPlus.AchievementType;
 import com.dyn.achievements.achievement.Requirements.BaseRequirement;
+import com.dyn.server.packets.PacketDispatcher;
+import com.dyn.server.packets.client.SyncAchievementsMessage;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
@@ -21,27 +23,17 @@ public class EventHandler {
 		if (event.crafting != null) {
 			for (AchievementPlus a : AchievementHandler.getItemNames().get(AchievementType.CRAFT)
 					.get(event.crafting.getDisplayName())) {
-				if (!a.isAwarded()) {
-					if (!a.hasParent()) {
-						for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.CRAFT)) {
-							if (r.getRequirementEntityName().equals(event.crafting.getDisplayName())) {
-								if (r.getTotalAquired() < r.getTotalNeeded()) {
-									//r.incrementTotal();
-									//send a packet here
-								}
-							}
-						}
-						//a.meetsRequirements(event.player);
-					} else if (a.getParent().isAwarded()) {
-						for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.CRAFT)) {
-							if (r.getRequirementItemID() == Item.getIdFromItem(event.crafting.getItem())) {
-								if (r.getTotalAquired() < r.getTotalNeeded()) {
-									//r.incrementTotal();
-									//send a packet here
-								}
-							}
-						}
-						//a.meetsRequirements(event.player);
+				for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.CRAFT)) {
+					if (r.getRequirementEntityName().equals(event.crafting.getDisplayName())) {
+						// send a packet here along with event.player the
+						// achievement id, requirement type and id
+						event.player.addChatMessage(new ChatComponentText(
+								"Sending Packet to " + event.player.getDisplayName() + " with message " + a.getId()
+										+ " " + AchievementType.CRAFT + " " + r.getRequirementID()));
+						PacketDispatcher.sendTo(
+								new SyncAchievementsMessage(
+										"" + a.getId() + " " + AchievementType.CRAFT + " " + r.getRequirementID()),
+								(EntityPlayerMP) event.player);
 					}
 				}
 			}
@@ -53,27 +45,17 @@ public class EventHandler {
 		if (event.smelting != null) {
 			for (AchievementPlus a : AchievementHandler.getItemNames().get(AchievementType.SMELT)
 					.get(event.smelting.getDisplayName())) {
-				if (!a.isAwarded()) {
-					if (!a.hasParent()) {
-						for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.SMELT)) {
-							if (r.getRequirementItemID() == Item.getIdFromItem(event.smelting.getItem())) {
-								if (r.getTotalAquired() < r.getTotalNeeded()) {
-									//r.incrementTotal();
-									//send a packet here
-								}
-							}
-						}
-						//a.meetsRequirements(event.player);
-					} else if (a.getParent().isAwarded()) {
-						for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.SMELT)) {
-							if (r.getRequirementItemID() == Item.getIdFromItem(event.smelting.getItem())) {
-								if (r.getTotalAquired() < r.getTotalNeeded()) {
-									//r.incrementTotal();
-									//send a packet here
-								}
-							}
-						}
-						//a.meetsRequirements(event.player);
+				for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.SMELT)) {
+					if (r.getRequirementItemID() == Item.getIdFromItem(event.smelting.getItem())) {
+						// send a packet here along with event.player the
+						// achievement id, requirement type and id
+						event.player.addChatMessage(new ChatComponentText(
+								"Sending Packet to " + event.player.getDisplayName() + " with message " + a.getId()
+										+ " " + AchievementType.SMELT + " " + r.getRequirementID()));
+						PacketDispatcher.sendTo(
+								new SyncAchievementsMessage(
+										"" + a.getId() + " " + AchievementType.SMELT + " " + r.getRequirementID()),
+								(EntityPlayerMP) event.player);
 					}
 				}
 			}
@@ -85,27 +67,17 @@ public class EventHandler {
 		if (event.pickedUp != null) {
 			for (AchievementPlus a : AchievementHandler.getItemNames().get(AchievementType.PICKUP)
 					.get(event.pickedUp.getEntityItem().getDisplayName())) {
-				if (!a.isAwarded()) {
-					if (!a.hasParent()) {
-						for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.PICKUP)) {
-							if (r.getRequirementEntityName().equals(event.pickedUp.getEntityItem().getDisplayName())) {
-								if (r.getTotalAquired() < r.getTotalNeeded()) {
-									//r.incrementTotal();
-									//send a packet here
-								}
-							}
-						}
-						//a.meetsRequirements(event.player);
-					} else if (a.getParent().isAwarded()) {
-						for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.PICKUP)) {
-							if (r.getRequirementEntityName().equals(event.pickedUp.getEntityItem().getDisplayName())) {
-								if (r.getTotalAquired() < r.getTotalNeeded()) {
-									//r.incrementTotal();
-									//send a packet here
-								}
-							}
-						}
-						//a.meetsRequirements(event.player);
+				for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.PICKUP)) {
+					if (r.getRequirementEntityName().equals(event.pickedUp.getEntityItem().getDisplayName())) {
+						// send a packet here along with event.player the
+						// achievement id, requirement type and id
+						event.player.addChatMessage(new ChatComponentText(
+								"Sending Packet to " + event.player.getDisplayName() + " with message " + a.getId()
+										+ " " + AchievementType.PICKUP + " " + r.getRequirementID()));
+						PacketDispatcher.sendTo(
+								new SyncAchievementsMessage(
+										"" + a.getId() + " " + AchievementType.PICKUP + " " + r.getRequirementID()),
+								(EntityPlayerMP) event.player);
 					}
 				}
 			}
@@ -114,35 +86,19 @@ public class EventHandler {
 
 	@SubscribeEvent
 	public void killEvent(LivingDeathEvent event) {
-		if (event.source != null && event.source.getEntity() != null && event.entity != null) {
-			if (event.source.getEntity() instanceof EntityPlayer) {
-				EntityPlayer player = (EntityPlayer) event.source.getEntity();
-				for (AchievementPlus a : AchievementHandler.getEntityNames().get(AchievementType.KILL)
-						.get(EntityList.getEntityString(event.entity))) {
-					if (!a.isAwarded()) {
-						if (!a.hasParent()) {
-							for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.KILL)) {
-								if (r.getRequirementEntityName().equals(EntityList.getEntityString(event.entity))) {
-									if (r.getTotalAquired() < r.getTotalNeeded()) {
-										//r.incrementTotal();
-										//send a packet here
-									}
-								}
-							}
-							//a.meetsRequirements(player);
-						} else if (a.getParent().isAwarded()) {
-							player.addChatMessage(new ChatComponentText(a.getName()
-									+ " is incrementing and has a parent " + EntityList.getEntityString(event.entity)));
-							for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.KILL)) {
-								if (r.getRequirementEntityName().equals(EntityList.getEntityString(event.entity))) {
-									if (r.getTotalAquired() < r.getTotalNeeded()) {
-										//r.incrementTotal();
-										//send a packet here
-									}
-								}
-							}
-							//a.meetsRequirements(player);
-						}
+		if (event.source != null && event.source.getEntity() != null && event.entity != null
+				&& event.source.getEntity() instanceof EntityPlayer) {
+			for (AchievementPlus a : AchievementHandler.getEntityNames().get(AchievementType.KILL)
+					.get(EntityList.getEntityString(event.entity))) {
+				for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.KILL)) {
+					if (r.getRequirementEntityName().equals(EntityList.getEntityString(event.entity))) {
+						// send a packet here along with (EntityPlayer)
+						// event.source.getEntity()
+						// the achievement id, requirement type and id
+						PacketDispatcher.sendTo(
+								new SyncAchievementsMessage(
+										"" + a.getId() + " " + AchievementType.KILL + " " + r.getRequirementID()),
+								(EntityPlayerMP) event.source.getEntity());
 					}
 				}
 			}
