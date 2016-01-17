@@ -13,20 +13,23 @@ public class Requirements {
 		private int aquired;
 		private int amount;
 		private int id;
+		private int item_id;
 		private int sub_id;
 
 		BaseRequirement() {
 			this.aquired = 0;
 			this.amount = 0;
-			this.id = 0;
+			this.item_id = 0;
 			this.sub_id = 0;
+			this.id = 0;
 		}
 
 		BaseRequirement(BaseRequirement br) {
 			this.aquired = br.aquired;
 			this.amount = br.amount;
-			this.id = br.id;
+			this.item_id = br.item_id;
 			this.sub_id = br.sub_id;
+			this.id = br.id;
 		}
 
 		public abstract String getRequirementEntityName();
@@ -40,19 +43,27 @@ public class Requirements {
 		}
 
 		public int getRequirementItemID() {
-			return this.id;
+			return this.item_id;
 		}
 
 		public int getRequirementSubItemID(){
 			return this.sub_id;
 		}
 		
-		public void setId(int id){
-			this.id = id;
+		public int getRequirementID(){
+			return this.id;
 		}
 		
-		public void setSubId(int id){
+		public void setItemId(int id){
+			this.item_id = id;
+		}
+		
+		public void setSubItemId(int id){
 			this.sub_id = id;
+		}
+		
+		public void setRequirementId(int id){
+			this.id = id;
 		}
 
 		public void incrementTotal() {
@@ -92,8 +103,8 @@ public class Requirements {
 
 		public void setFromItemId(int id, int subItemId) {
 			this.item = new ItemStack(Item.getItemById(id), 1, subItemId);
-			setId(id);
-			setSubId(subItemId);
+			setItemId(id);
+			setSubItemId(subItemId);
 		}
 	}
 
@@ -103,13 +114,13 @@ public class Requirements {
 		public SmeltRequirement() {
 			super();
 			this.item = null;
-			super.id = 0;
+			super.item_id = 0;
 		}
 
 		public SmeltRequirement(SmeltRequirement sr) {
 			super(sr);
 			this.item = sr.item;
-			super.id = sr.getRequirementItemID();
+			super.item_id = sr.getRequirementItemID();
 		}
 
 		@Override
@@ -119,8 +130,8 @@ public class Requirements {
 
 		public void setFromItemId(int id, int subItemId) {
 			this.item = new ItemStack(Item.getItemById(id), 1, subItemId);
-			setId(id);
-			setSubId(subItemId);
+			setItemId(id);
+			setSubItemId(subItemId);
 		}
 	}
 
@@ -182,8 +193,8 @@ public class Requirements {
 
 		public void setFromItemId(int id, int subItemId) {
 			this.item = new ItemStack(Item.getItemById(id), 1, subItemId);
-			setId(id);
-			setSubId(subItemId);
+			setItemId(id);
+			setSubItemId(subItemId);
 		}
 	}
 
@@ -207,14 +218,9 @@ public class Requirements {
 	}
 
 	private ArrayList<BaseRequirement> requirements = new ArrayList();
-	public int id;
 
 	public Requirements() {
-		id = (int) (1000*Math.random());
-	}
-	
-	public int getId(){
-		return id;
+
 	}
 	
 	public static Requirements getCopy(Requirements r){
