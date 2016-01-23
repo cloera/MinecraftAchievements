@@ -2,7 +2,7 @@ package com.dyn.achievements.proxy;
 
 import org.lwjgl.input.Keyboard;
 
-import com.dyn.achievements.gui.AchHome;
+import com.dyn.achievements.gui.Search;
 import com.rabbit.gui.GuiFoundation;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
@@ -12,6 +12,10 @@ import cpw.mods.fml.common.gameevent.InputEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ChatComponentText;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
 public class Client implements Proxy {
 
@@ -32,13 +36,13 @@ public class Client implements Proxy {
 			return;
 		}
 		if (achievementKey.isPressed()) {
-			GuiFoundation.proxy.display(new AchHome());
+			GuiFoundation.proxy.display(new Search());
 		}
 	}
 
 	@Override
 	public void init() {
-		
+
 		FMLCommonHandler.instance().bus().register(this);
 
 		achievementKey = new KeyBinding("key.toggle.achievementui", Keyboard.KEY_N, "key.categories.toggle");

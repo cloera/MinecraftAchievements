@@ -3,9 +3,11 @@ package com.dyn.achievements.achievement;
 import java.util.ArrayList;
 
 import com.dyn.achievements.achievement.Requirements.BaseRequirement;
+import com.dyn.achievements.achievement.Requirements.BrewRequirement;
 import com.dyn.achievements.achievement.Requirements.CraftRequirement;
 import com.dyn.achievements.achievement.Requirements.KillRequirement;
 import com.dyn.achievements.achievement.Requirements.PickupRequirement;
+import com.dyn.achievements.achievement.Requirements.PlaceRequirement;
 import com.dyn.achievements.achievement.Requirements.SmeltRequirement;
 import com.dyn.achievements.achievement.Requirements.SpawnRequirement;
 import com.dyn.achievements.handlers.AchievementHandler;
@@ -106,12 +108,13 @@ public class AchievementPlus extends Achievement {
 	 *            ItemStack
 	 */
 	public void awardAchievement(EntityPlayer player) {
-		if(!LoginGUI.DYN_Username.isEmpty()){
+		//if(!LoginGUI.DYN_Username.isEmpty()){
 			player.addChatMessage(new ChatComponentText("Awrding achievment " + getName()));
 			System.out.println("Awarding Achievement");
 			new PostBadge(badgeId, LoginGUI.DYN_Username, "", "", player);
 			awarded = true;
-		}
+			player.addStat(this, 1);
+		//}
 	}
 
 	public boolean isAwarded() {
@@ -147,12 +150,12 @@ public class AchievementPlus extends Achievement {
 		this.world_name = name;
 	}
 
-	public void meetsRequirements(EntityPlayer player) {
+	public boolean meetsRequirements() {
 		for (BaseRequirement r : requirements.getRequirements()) {
 			if (r.getTotalAquired() < r.getTotalNeeded())
-				return;
+				return false;
 		}
-		awardAchievement(player);
+		return true;
 	}
 
 	public static AchievementPlus JsonToAchievement(JsonObject json) {
@@ -229,6 +232,30 @@ public class AchievementPlus extends Achievement {
 					requirements.addRequirement(r);
 				}
 			}
+			if (req.has("brew_requirements")) {
+				JsonArray reqType = req.get("brew_requirements").getAsJsonArray();
+				int counter = 1;
+				for(JsonElement jElement : reqType){
+					JsonObject reqSubType = jElement.getAsJsonObject();
+					BrewRequirement r = requirements.new BrewRequirement();
+					r.setFromItemId(reqSubType.get("item_id").getAsInt(), reqSubType.get("sub_id").getAsInt());
+					r.setRequirementId(reqSubType.get("id").getAsInt());
+					r.setAmountNeeded(reqSubType.get("amount").getAsInt());
+					requirements.addRequirement(r);
+				}
+			}
+			if (req.has("place_requirements")) {
+				JsonArray reqType = req.get("place_requirements").getAsJsonArray();
+				int counter = 1;
+				for(JsonElement jElement : reqType){
+					JsonObject reqSubType = jElement.getAsJsonObject();
+					PlaceRequirement r = requirements.new PlaceRequirement();
+					r.setFromItemId(reqSubType.get("item_id").getAsInt(), reqSubType.get("sub_id").getAsInt());
+					r.setRequirementId(reqSubType.get("id").getAsInt());
+					r.setAmountNeeded(reqSubType.get("amount").getAsInt());
+					requirements.addRequirement(r);
+				}
+			}
 			if (json.has("badge_id"))
 				badgeId = json.get("badge_id").getAsInt();
 			if (json.has("parent_name")) {
@@ -254,7 +281,7 @@ public class AchievementPlus extends Achievement {
 
 		JsonObject req = new JsonObject();
 		boolean[] types = requirements.getRequirementTypes();
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < 8; i++) {
 			//JsonObject reqTypes = new JsonObject();
 			JsonArray reqTypes = new JsonArray();
 			switch (i) {
@@ -354,6 +381,38 @@ public class AchievementPlus extends Achievement {
 					req.add("spawn_requirements", reqTypes);
 				}
 				break;
+			case 6:
+				if (types[i]) {
+					ArrayList<BaseRequirement> typeReq = requirements.getRequirementsByType(AchievementType.BREW);
+					int counter = 1;
+					for (BaseRequirement t : typeReq) {
+						JsonObject reqSubTypes = new JsonObject();
+						reqSubTypes.addProperty("item", t.getRequirementEntityName());
+						reqSubTypes.addProperty("amount", t.getTotalNeeded());
+						reqSubTypes.addProperty("id", t.getRequirementID());
+						reqSubTypes.addProperty("item_id", t.getRequirementItemID());
+						reqSubTypes.addProperty("sub_id", t.getRequirementSubItemID());
+						reqTypes.add(reqSubTypes);
+					}
+					req.add("brew_requirements", reqTypes);
+				}
+				break;
+			case 7:
+				if (types[i]) {
+					ArrayList<BaseRequirement> typeReq = requirements.getRequirementsByType(AchievementType.PLACE);
+					int counter = 1;
+					for (BaseRequirement t : typeReq) {
+						JsonObject reqSubTypes = new JsonObject();
+						reqSubTypes.addProperty("item", t.getRequirementEntityName());
+						reqSubTypes.addProperty("amount", t.getTotalNeeded());
+						reqSubTypes.addProperty("id", t.getRequirementID());
+						reqSubTypes.addProperty("item_id", t.getRequirementItemID());
+						reqSubTypes.addProperty("sub_id", t.getRequirementSubItemID());
+						reqTypes.add(reqSubTypes);
+					}
+					req.add("place_requirements", reqTypes);
+				}
+				break;
 			default:
 				break;
 			}
@@ -368,6 +427,6 @@ public class AchievementPlus extends Achievement {
 	}
 
 	public enum AchievementType {
-		CRAFT, SMELT, PICKUP, STAT, KILL, SPAWN, BREW, OTHER
+		CRAFT, SMELT, PICKUP, STAT, KILL, SPAWN, BREW, PLACE, OTHER
 	}
 }

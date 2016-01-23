@@ -195,6 +195,56 @@ public class Requirements {
 			setSubItemId(subItemId);
 		}
 	}
+	
+	public class PlaceRequirement extends BaseRequirement {
+		public ItemStack item;
+
+		public PlaceRequirement() {
+			super();
+			this.item = null;
+		}
+
+		public PlaceRequirement(PlaceRequirement pr) {
+			super(pr);
+			this.item = pr.item;
+		}
+
+		@Override
+		public String getRequirementEntityName() {
+			return this.item.getDisplayName();
+		}
+
+		public void setFromItemId(int id, int subItemId) {
+			this.item = new ItemStack(Item.getItemById(id), 1, subItemId);
+			setItemId(id);
+			setSubItemId(subItemId);
+		}
+	}
+	
+	public class BrewRequirement extends BaseRequirement {
+		public ItemStack item;
+
+		public BrewRequirement() {
+			super();
+			this.item = null;
+		}
+
+		public BrewRequirement(BrewRequirement pr) {
+			super(pr);
+			this.item = pr.item;
+		}
+
+		@Override
+		public String getRequirementEntityName() {
+			return this.item.getDisplayName();
+		}
+
+		public void setFromItemId(int id, int subItemId) {
+			this.item = new ItemStack(Item.getItemById(id), 1, subItemId);
+			setItemId(id);
+			setSubItemId(subItemId);
+		}
+	}
 
 	public class StatRequirement extends BaseRequirement {
 		public StatBase eventStat;
@@ -242,6 +292,12 @@ public class Requirements {
 			if (br instanceof SpawnRequirement) {
 				copy.addRequirement(copy.new SpawnRequirement((SpawnRequirement) br));
 			}
+			if (br instanceof BrewRequirement) {
+				copy.addRequirement(copy.new BrewRequirement((BrewRequirement) br));
+			}
+			if (br instanceof PlaceRequirement) {
+				copy.addRequirement(copy.new PlaceRequirement((PlaceRequirement) br));
+			}
 		}
 		return copy;
 	}
@@ -278,6 +334,8 @@ public class Requirements {
 		boolean hasStat = false;
 		boolean hasKill = false;
 		boolean hasSpawn = false;
+		boolean hasBrew = false;
+		boolean hasPlace = false;
 		for (BaseRequirement r : this.requirements) {
 			if (r instanceof CraftRequirement)
 				hasCraft = true;
@@ -296,9 +354,13 @@ public class Requirements {
 
 			if (r instanceof SpawnRequirement)
 				hasSpawn = true;
+			if (r instanceof BrewRequirement)
+				hasBrew = true;
+			if (r instanceof PlaceRequirement)
+				hasPlace = true;
 
 		}
-		boolean[] types = { hasCraft, hasSmelt, hasPickup, hasStat, hasKill, hasSpawn };
+		boolean[] types = { hasCraft, hasSmelt, hasPickup, hasStat, hasKill, hasSpawn, hasBrew, hasPlace };
 		return types;
 	}
 
@@ -335,6 +397,14 @@ public class Requirements {
 				break;
 			case SPAWN:
 				if (r instanceof SpawnRequirement)
+					typereq.add(r);
+				break;
+			case BREW:
+				if (r instanceof BrewRequirement)
+					typereq.add(r);
+				break;
+			case PLACE:
+				if (r instanceof PlaceRequirement)
 					typereq.add(r);
 				break;
 			default:

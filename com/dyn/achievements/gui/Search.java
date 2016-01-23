@@ -18,11 +18,11 @@ import com.rabbit.gui.show.Show;
 
 import net.minecraft.util.ResourceLocation;
 
-public class AchHome extends Show {
+public class Search extends Show {
 
 	private ScrollableGrid achievementGrid;
 	
-	public AchHome() {
+	public Search() {
 		this.setBackground(new DefaultBackground());
 		this.title = "Achievement Gui";
 	}
@@ -43,7 +43,7 @@ public class AchHome extends Show {
 			ResourceLocation imgTexture = new ResourceLocation("minecraft", "textures/items/experience_bottle.png");
 			entries.add(new PictureButtonGridEntry(25, 25, imgTexture).doesDrawHoverText(true).setHoverText(hoverText)
 					.setClickListener((PictureButtonGridEntry entry, Grid grid, int mouseX, int mouseY) -> this
-							.getStage().display(new AchDisp(a, imgTexture))));
+							.getStage().display(new Info(a, imgTexture))));
 		}
 
 		achievementGrid = new ScrollableGrid((int) (this.width / 5.8), (int) (this.height * .25), (int) (this.width * .65),
@@ -71,7 +71,7 @@ public class AchHome extends Show {
 					ResourceLocation imgTexture = new ResourceLocation("minecraft", "textures/items/experience_bottle.png");
 					achievementGrid.add(new PictureButtonGridEntry(25, 25, imgTexture).doesDrawHoverText(true).setHoverText(hoverText)
 							.setClickListener((PictureButtonGridEntry entry, Grid grid, int mouseX, int mouseY) -> this
-									.getStage().display(new AchDisp(a, imgTexture))));
+									.getStage().display(new Info(a, imgTexture))));
 				}
 			} else {
 				for (AchievementPlus a : AchievementHandler.findAchievementsByName(textbox.getText())) {
@@ -81,7 +81,7 @@ public class AchHome extends Show {
 					ResourceLocation imgTexture = new ResourceLocation("minecraft", "textures/items/experience_bottle.png");
 					achievementGrid.add(new PictureButtonGridEntry(25, 25, imgTexture).doesDrawHoverText(true).setHoverText(hoverText)
 							.setClickListener((PictureButtonGridEntry entry, Grid grid, int mouseX, int mouseY) -> this
-									.getStage().display(new AchDisp(a, imgTexture))));
+									.getStage().display(new Info(a, imgTexture))));
 				}
 			}
 		}

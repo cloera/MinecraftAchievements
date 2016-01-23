@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import com.dyn.achievements.achievement.AchievementPlus;
 import com.dyn.achievements.achievement.AchievementPlus.AchievementType;
 import com.dyn.achievements.achievement.Requirements.BaseRequirement;
+import com.dyn.server.packets.PacketDispatcher;
+import com.dyn.server.packets.server.AwardAchievementMessage;
 import com.rabbit.gui.background.DefaultBackground;
 import com.rabbit.gui.component.control.Button;
 import com.rabbit.gui.component.display.Picture;
@@ -15,15 +17,14 @@ import com.rabbit.gui.component.list.entries.StringEntry;
 import com.rabbit.gui.render.TextAlignment;
 import com.rabbit.gui.show.Show;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 
-public class AchDisp extends Show {
+public class Info extends Show {
 
 	AchievementPlus achievement;
 	ResourceLocation texture;
 
-	public AchDisp(AchievementPlus achievement, ResourceLocation picture) {
+	public Info(AchievementPlus achievement, ResourceLocation picture) {
 		this.setBackground(new DefaultBackground());
 		this.title = "Achievement Gui";
 		this.achievement = achievement;
@@ -86,11 +87,25 @@ public class AchDisp extends Show {
 			ulist.add(new StringEntry(
 					r.getRequirementEntityName() + " - " + r.getTotalAquired() + "/" + r.getTotalNeeded()));
 		}
+		
+		if (achievement.hasRequirementOfType(AchievementType.BREW))
+			ulist.add(new StringEntry("-Brew-"));
+		for (BaseRequirement r : achievement.getRequirements().getRequirementsByType(AchievementType.BREW)) {
+			ulist.add(new StringEntry(
+					r.getRequirementEntityName() + " - " + r.getTotalAquired() + "/" + r.getTotalNeeded()));
+		}
+		
+		if (achievement.hasRequirementOfType(AchievementType.PLACE))
+			ulist.add(new StringEntry("-Place-"));
+		for (BaseRequirement r : achievement.getRequirements().getRequirementsByType(AchievementType.PLACE)) {
+			ulist.add(new StringEntry(
+					r.getRequirementEntityName() + " - " + r.getTotalAquired() + "/" + r.getTotalNeeded()));
+		}
 
 		this.registerComponent(new TextLabel((int) (this.width * .5), (int) (this.height * .4), this.width / 3, 20,
 				"Requirements", TextAlignment.CENTER));
-		
-		if(achievement.isAwarded()){
+
+		if (achievement.isAwarded()) {
 			this.registerComponent(new TextLabel((int) (this.width * .2), (int) (this.height * .4), this.width / 3, 20,
 					"Achieved!", TextAlignment.CENTER));
 		}
@@ -100,9 +115,12 @@ public class AchDisp extends Show {
 
 		this.registerComponent(new Button(this.width / 6, (int) (this.height * .8), 40, 20, "Back")
 				.setClickListener(but -> this.getStage().displayPrevious()));
-		
-		this.registerComponent(new Button(this.width / 6, (int) (this.height * .7), 60, 20, "Award")
-				.setClickListener(but -> {achievement.awardAchievement(Minecraft.getMinecraft().thePlayer);}));
+
+		this.registerComponent(
+				new Button(this.width / 6, (int) (this.height * .7), 60, 20, "Award").setClickListener(but -> {
+					PacketDispatcher.sendToServer(new AwardAchievementMessage(achievement.getId()));
+					achievement.setAwarded(true);
+				}));
 
 		// The background
 		this.registerComponent(new Picture(this.width / 8, (int) (this.height * .05), (int) (this.width * (6.0 / 8.0)),
