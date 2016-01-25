@@ -221,6 +221,31 @@ public class Requirements {
 		}
 	}
 	
+	public class BreakRequirement extends BaseRequirement {
+		public ItemStack item;
+
+		public BreakRequirement() {
+			super();
+			this.item = null;
+		}
+
+		public BreakRequirement(BreakRequirement pr) {
+			super(pr);
+			this.item = pr.item;
+		}
+
+		@Override
+		public String getRequirementEntityName() {
+			return this.item.getDisplayName();
+		}
+
+		public void setFromItemId(int id, int subItemId) {
+			this.item = new ItemStack(Item.getItemById(id), 1, subItemId);
+			setItemId(id);
+			setSubItemId(subItemId);
+		}
+	}
+	
 	public class BrewRequirement extends BaseRequirement {
 		public ItemStack item;
 
@@ -298,6 +323,9 @@ public class Requirements {
 			if (br instanceof PlaceRequirement) {
 				copy.addRequirement(copy.new PlaceRequirement((PlaceRequirement) br));
 			}
+			if (br instanceof BreakRequirement) {
+				copy.addRequirement(copy.new BreakRequirement((BreakRequirement) br));
+			}
 		}
 		return copy;
 	}
@@ -336,6 +364,7 @@ public class Requirements {
 		boolean hasSpawn = false;
 		boolean hasBrew = false;
 		boolean hasPlace = false;
+		boolean hasBreak = false;
 		for (BaseRequirement r : this.requirements) {
 			if (r instanceof CraftRequirement)
 				hasCraft = true;
@@ -358,9 +387,11 @@ public class Requirements {
 				hasBrew = true;
 			if (r instanceof PlaceRequirement)
 				hasPlace = true;
+			if (r instanceof BreakRequirement)
+				hasBreak = true;
 
 		}
-		boolean[] types = { hasCraft, hasSmelt, hasPickup, hasStat, hasKill, hasSpawn, hasBrew, hasPlace };
+		boolean[] types = { hasCraft, hasSmelt, hasPickup, hasStat, hasKill, hasSpawn, hasBrew, hasPlace, hasBreak };
 		return types;
 	}
 
@@ -405,6 +436,10 @@ public class Requirements {
 				break;
 			case PLACE:
 				if (r instanceof PlaceRequirement)
+					typereq.add(r);
+				break;
+			case BREAK:
+				if (r instanceof BreakRequirement)
 					typereq.add(r);
 				break;
 			default:

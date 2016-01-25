@@ -101,6 +101,12 @@ public class Info extends Show {
 			ulist.add(new StringEntry(
 					r.getRequirementEntityName() + " - " + r.getTotalAquired() + "/" + r.getTotalNeeded()));
 		}
+		if (achievement.hasRequirementOfType(AchievementType.BREAK))
+			ulist.add(new StringEntry("-Break-"));
+		for (BaseRequirement r : achievement.getRequirements().getRequirementsByType(AchievementType.BREAK)) {
+			ulist.add(new StringEntry(
+					r.getRequirementEntityName() + " - " + r.getTotalAquired() + "/" + r.getTotalNeeded()));
+		}
 
 		this.registerComponent(new TextLabel((int) (this.width * .5), (int) (this.height * .4), this.width / 3, 20,
 				"Requirements", TextAlignment.CENTER));

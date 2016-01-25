@@ -179,6 +179,13 @@ public class AchievementHandler {
 			}
 			achievementsType.get(AchievementType.PLACE).add(achievement);
 		}
+		if (vals[8]) {
+			if (achievementsType.get(AchievementType.BREAK) == null) {
+				ArrayList<AchievementPlus> ach = new ArrayList();
+				achievementsType.put(AchievementType.BREAK, ach);
+			}
+			achievementsType.get(AchievementType.BREAK).add(achievement);
+		}
 	}
 	
 	private static void parseRequirementItemNames(AchievementPlus achievement){
@@ -226,6 +233,15 @@ public class AchievementHandler {
 			}
 			for(BaseRequirement r : achievement.getRequirements().getRequirementsByType(AchievementType.PLACE)){
 				itemNames.get(AchievementType.PLACE).put(r.getRequirementEntityName(), achievement);
+			}
+		}
+		if (vals[8]) {
+			if (itemNames.get(AchievementType.BREAK) == null) {
+				ListMultimap<String, AchievementPlus> map = ArrayListMultimap.create();
+				itemNames.put(AchievementType.BREAK, map);
+			}
+			for(BaseRequirement r : achievement.getRequirements().getRequirementsByType(AchievementType.BREAK)){
+				itemNames.get(AchievementType.BREAK).put(r.getRequirementEntityName(), achievement);
 			}
 		}
 	}

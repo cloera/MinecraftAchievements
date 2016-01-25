@@ -5,11 +5,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.event.brewing.PotionBrewEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 
@@ -19,7 +16,6 @@ import com.dyn.achievements.achievement.Requirements.BaseRequirement;
 import com.dyn.server.packets.PacketDispatcher;
 import com.dyn.server.packets.client.SyncAchievementsMessage;
 
-import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 
@@ -113,32 +109,45 @@ public class EventHandler {
 
 		}
 	}
+	
+	@SubscribeEvent
+	public void breakBlockEvent(BreakEvent event) {
+		// we are only concerned with placing blocks
+		if (event.block != null && event.getPlayer() != null) {
+			ItemStack is = new ItemStack(event.block, 1, event.blockMetadata);
+			for (AchievementPlus a : AchievementHandler.getItemNames().get(AchievementType.BREAK)
+					.get(is.getDisplayName())) {
+				for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.BREAK)) {
+					if (r.getRequirementEntityName().equals(is.getDisplayName())) {
+						PacketDispatcher.sendTo(
+								new SyncAchievementsMessage(
+										"" + a.getId() + " " + AchievementType.BREAK + " " + r.getRequirementID()),
+								(EntityPlayerMP) event.getPlayer());
+					}
+				}
 
-	/*
-	 * // how do we know which player brewed the potion
-	 * 
-	 * @SubscribeEvent public void brewEvent(PotionBrewEvent event) { for (int i
-	 * = 0; i < 3; i++) { if (event.getItem(i) != null) { for (AchievementPlus a
-	 * : AchievementHandler.getItemNames().get(AchievementType.BREW)
-	 * .get(event.getItem(i).getDisplayName())) { for (BaseRequirement r :
-	 * a.getRequirements().getRequirementsByType(AchievementType.BREW)) { if
-	 * (r.getRequirementEntityName().equals(event.getItem(i).getDisplayName()))
-	 * {
-	 * 
-	 * } } } } } }
-	 */
+			}
 
-	/*
-	 * @SubscribeEvent public void spawnEvent(LivingEvent.LivingSpawnEvent
-	 * event) { EntityClientPlayerMP player =
-	 * Minecraft.getMinecraft().thePlayer; if(player!=null)
-	 * player.addChatComponentMessage( new ChatComponentTranslation("Spawned " +
-	 * EntityList.getStringFromID(event.entityLiving.getEntityId())
-	 * ).setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA))); if
-	 * (event.entityLiving instanceof EntityPlayerMP) {
-	 * 
-	 * } }
-	 */
+		}
+	}
+
+	// how do we know which player brewed the potion
+
+	@SubscribeEvent
+	public void brewEvent(PotionBrewEvent event) {
+		for (int i = 0; i < 3; i++) {
+			if (event.getItem(i) != null) {
+				for (AchievementPlus a : AchievementHandler.getItemNames().get(AchievementType.BREW)
+						.get(event.getItem(i).getDisplayName())) {
+					for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.BREW)) {
+						if (r.getRequirementEntityName().equals(event.getItem(i).getDisplayName())) {
+
+						}
+					}
+				}
+			}
+		}
+	}
 
 	// this is really dangerous as it happens every game tick,
 	// we either should find an alternative, thread this, or keep code as

@@ -2,20 +2,9 @@ package com.dyn.achievements;
 
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.logging.log4j.Logger;
 
 import com.dyn.achievements.achievement.AchievementPlus;
-import com.dyn.achievements.achievement.Requirements;
-import com.dyn.achievements.achievement.Requirements.CraftRequirement;
-import com.dyn.achievements.achievement.Requirements.KillRequirement;
-import com.dyn.achievements.achievement.Requirements.PickupRequirement;
-import com.dyn.achievements.achievement.Requirements.SmeltRequirement;
-import com.dyn.achievements.achievement.Requirements.StatRequirement;
-import com.dyn.achievements.achievement.StringMap;
-import com.dyn.achievements.achievement.StringPlus;
 import com.dyn.achievements.handlers.*;
 import com.dyn.achievements.proxy.Proxy;
 import com.dyn.achievements.reference.Reference;
@@ -25,10 +14,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.config.Configuration;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
@@ -40,6 +25,8 @@ public class AchievementsMod {
 
 	@Mod.Instance(Reference.MOD_ID)
 	public static AchievementsMod instance;
+	
+	public static String currentWorld = "";
 
 	@SidedProxy(clientSide = Reference.CLIENT_PROXY_CLASS, serverSide = Reference.SERVER_PROXY_CLASS)
 	public static Proxy proxy;

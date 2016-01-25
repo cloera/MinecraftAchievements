@@ -3,6 +3,7 @@ package com.dyn.achievements.achievement;
 import java.util.ArrayList;
 
 import com.dyn.achievements.achievement.Requirements.BaseRequirement;
+import com.dyn.achievements.achievement.Requirements.BreakRequirement;
 import com.dyn.achievements.achievement.Requirements.BrewRequirement;
 import com.dyn.achievements.achievement.Requirements.CraftRequirement;
 import com.dyn.achievements.achievement.Requirements.KillRequirement;
@@ -256,6 +257,18 @@ public class AchievementPlus extends Achievement {
 					requirements.addRequirement(r);
 				}
 			}
+			if (req.has("break_requirements")) {
+				JsonArray reqType = req.get("break_requirements").getAsJsonArray();
+				int counter = 1;
+				for(JsonElement jElement : reqType){
+					JsonObject reqSubType = jElement.getAsJsonObject();
+					BreakRequirement r = requirements.new BreakRequirement();
+					r.setFromItemId(reqSubType.get("item_id").getAsInt(), reqSubType.get("sub_id").getAsInt());
+					r.setRequirementId(reqSubType.get("id").getAsInt());
+					r.setAmountNeeded(reqSubType.get("amount").getAsInt());
+					requirements.addRequirement(r);
+				}
+			}
 			if (json.has("badge_id"))
 				badgeId = json.get("badge_id").getAsInt();
 			if (json.has("parent_name")) {
@@ -413,6 +426,22 @@ public class AchievementPlus extends Achievement {
 					req.add("place_requirements", reqTypes);
 				}
 				break;
+			case 8:
+				if (types[i]) {
+					ArrayList<BaseRequirement> typeReq = requirements.getRequirementsByType(AchievementType.BREAK);
+					int counter = 1;
+					for (BaseRequirement t : typeReq) {
+						JsonObject reqSubTypes = new JsonObject();
+						reqSubTypes.addProperty("item", t.getRequirementEntityName());
+						reqSubTypes.addProperty("amount", t.getTotalNeeded());
+						reqSubTypes.addProperty("id", t.getRequirementID());
+						reqSubTypes.addProperty("item_id", t.getRequirementItemID());
+						reqSubTypes.addProperty("sub_id", t.getRequirementSubItemID());
+						reqTypes.add(reqSubTypes);
+					}
+					req.add("break_requirements", reqTypes);
+				}
+				break;
 			default:
 				break;
 			}
@@ -427,6 +456,6 @@ public class AchievementPlus extends Achievement {
 	}
 
 	public enum AchievementType {
-		CRAFT, SMELT, PICKUP, STAT, KILL, SPAWN, BREW, PLACE, OTHER
+		CRAFT, SMELT, PICKUP, STAT, KILL, SPAWN, BREW, PLACE, BREAK, OTHER
 	}
 }
