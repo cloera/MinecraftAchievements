@@ -5,9 +5,8 @@ import net.minecraftforge.common.AchievementPage;
 
 import java.util.*;
 
-import com.dyn.achievements.achievement.AchievementMap;
 import com.dyn.achievements.achievement.AchievementPlus;
-import com.dyn.achievements.achievement.AchievementPlus.AchievementType;
+import com.dyn.achievements.achievement.AchievementType;
 import com.dyn.achievements.achievement.Requirements.BaseRequirement;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -159,27 +158,20 @@ public class AchievementHandler {
 			achievementsType.get(AchievementType.KILL).add(achievement);
 		}
 		if (vals[5]) {
-			if (achievementsType.get(AchievementType.SPAWN) == null) {
-				ArrayList<AchievementPlus> ach = new ArrayList();
-				achievementsType.put(AchievementType.SPAWN, ach);
-			}
-			achievementsType.get(AchievementType.SPAWN).add(achievement);
-		}
-		if (vals[6]) {
 			if (achievementsType.get(AchievementType.BREW) == null) {
 				ArrayList<AchievementPlus> ach = new ArrayList();
 				achievementsType.put(AchievementType.BREW, ach);
 			}
 			achievementsType.get(AchievementType.BREW).add(achievement);
 		}
-		if (vals[7]) {
+		if (vals[6]) {
 			if (achievementsType.get(AchievementType.PLACE) == null) {
 				ArrayList<AchievementPlus> ach = new ArrayList();
 				achievementsType.put(AchievementType.PLACE, ach);
 			}
 			achievementsType.get(AchievementType.PLACE).add(achievement);
 		}
-		if (vals[8]) {
+		if (vals[7]) {
 			if (achievementsType.get(AchievementType.BREAK) == null) {
 				ArrayList<AchievementPlus> ach = new ArrayList();
 				achievementsType.put(AchievementType.BREAK, ach);
@@ -217,7 +209,7 @@ public class AchievementHandler {
 				itemNames.get(AchievementType.PICKUP).put(r.getRequirementEntityName(), achievement);
 			}
 		}
-		if (vals[6]) {
+		if (vals[5]) {
 			if (itemNames.get(AchievementType.BREW) == null) {
 				ListMultimap<String, AchievementPlus> map = ArrayListMultimap.create();
 				itemNames.put(AchievementType.BREW, map);
@@ -226,7 +218,7 @@ public class AchievementHandler {
 				itemNames.get(AchievementType.BREW).put(r.getRequirementEntityName(), achievement);
 			}
 		}
-		if (vals[7]) {
+		if (vals[6]) {
 			if (itemNames.get(AchievementType.PLACE) == null) {
 				ListMultimap<String, AchievementPlus> map = ArrayListMultimap.create();
 				itemNames.put(AchievementType.PLACE, map);
@@ -235,7 +227,7 @@ public class AchievementHandler {
 				itemNames.get(AchievementType.PLACE).put(r.getRequirementEntityName(), achievement);
 			}
 		}
-		if (vals[8]) {
+		if (vals[7]) {
 			if (itemNames.get(AchievementType.BREAK) == null) {
 				ListMultimap<String, AchievementPlus> map = ArrayListMultimap.create();
 				itemNames.put(AchievementType.BREAK, map);
@@ -255,15 +247,6 @@ public class AchievementHandler {
 			}
 			for(BaseRequirement r : achievement.getRequirements().getRequirementsByType(AchievementType.KILL)){
 				entityNames.get(AchievementType.KILL).put(r.getRequirementEntityName(), achievement);
-			}
-		}
-		if (vals[5]) {
-			if (entityNames.get(AchievementType.SPAWN) == null) {
-				ListMultimap<String, AchievementPlus> map = ArrayListMultimap.create();
-				entityNames.put(AchievementType.SPAWN, map);
-			}
-			for(BaseRequirement r : achievement.getRequirements().getRequirementsByType(AchievementType.SPAWN)){
-				entityNames.get(AchievementType.SPAWN).put(r.getRequirementEntityName(), achievement);
 			}
 		}
 	}

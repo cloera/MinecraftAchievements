@@ -1,4 +1,4 @@
-package com.dyn.achievements.achievement;
+package com.dyn.achievements.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +39,10 @@ public class StringMap {
 
 	public int getId() {
 		return id;
+	}
+	
+	public List<GenericTree<StringPlus>> getTrees(){
+		return this.trees;
 	}
 
 	public void processMap() {
@@ -122,19 +126,7 @@ public class StringMap {
 			GenericTree<StringPlus> tree = new GenericTree<StringPlus>();
 			GenericTreeNode<StringPlus> root = new GenericTreeNode<StringPlus>(a);
 			for (StringPlus b : children) {
-				List<GenericTreeNode<StringPlus>> rootList = new ArrayList();
-				GenericTreeNode<StringPlus> recRoots = new GenericTreeNode<StringPlus>();
-				recursiveBuild(b, rootList);
-				StringPlus tRoot = rootList.remove(0).getData();
-				recRoots.setData(rootList.get(0).getData());
-				rootList.remove(0);
-				recRoots.setChildren(rootList);
-				if (tRoot == a) {
-					System.out.println(
-							"Adding Childern " + recRoots.getNumberOfChildren() + " to tree " + a);
-					
-					root.addChild(recRoots);
-				}
+				recursiveBuildNode(root, b, new GenericTreeNode<StringPlus>());
 			}
 			System.out.println("Adding Tree " + a + " with nodes " + root.getChildren());
 			tree.setRoot(root);
@@ -165,21 +157,30 @@ public class StringMap {
 		
 		System.out.println("Checking Trees Makeup");
 		for (GenericTree<StringPlus> t : this.trees) {
-			System.out.println("Children");
-			for( GenericTreeNode<StringPlus> tc : t.getRoot().getChildren()){
-				System.out.println(tc.getData());
-			}
 			System.out.println("Root");
 			System.out.println(t.getRoot().getData());
+			System.out.println("Children");
+			for( GenericTreeNode<StringPlus> tc : t.getRoot().getChildren()){
+				System.out.println(tc.getData() + "->" + tc.getChildren());
+			}
 		}
 		System.out.println("Done");
 	}
-
-	private void recursiveBuild(StringPlus node, List<GenericTreeNode<StringPlus>> nodes) {
+	
+	private void recursiveBuildNode(GenericTreeNode<StringPlus> root, StringPlus node, GenericTreeNode<StringPlus> nodes) {
 		if (node.hasParent()) {
-			recursiveBuild(node.getParent(), nodes);
+			GenericTreeNode<StringPlus> newNode = new GenericTreeNode<StringPlus>();
+			nodes.setData(node);
+			newNode.addChild(nodes);
+			recursiveBuildNode(root, node.getParent(), newNode);
+			if(node.getParent() == root.getData()){
+				//nodes.setData(node);
+				root.addChild(nodes);
+				System.out.println(nodes);
+			} /*else {
+				System.out.println(nodes);
+				nodes.addChild(new GenericTreeNode<StringPlus>(node));
+			}*/
 		}
-
-		nodes.add(new GenericTreeNode<StringPlus>(node));
 	}
 }

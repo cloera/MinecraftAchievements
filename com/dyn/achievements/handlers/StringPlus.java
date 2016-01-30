@@ -1,4 +1,4 @@
-package com.dyn.achievements.achievement;
+package com.dyn.achievements.handlers;
 
 public class StringPlus {
 	private StringPlus parent;

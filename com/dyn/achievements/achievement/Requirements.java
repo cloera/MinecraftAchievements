@@ -2,8 +2,6 @@ package com.dyn.achievements.achievement;
 
 import java.util.ArrayList;
 
-import com.dyn.achievements.achievement.AchievementPlus.AchievementType;
-
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.stats.StatBase;
@@ -144,25 +142,6 @@ public class Requirements {
 		public KillRequirement(KillRequirement kr) {
 			super(kr);
 			this.entityType = kr.entityType;
-		}
-
-		@Override
-		public String getRequirementEntityName() {
-			return this.entityType;
-		}
-	}
-
-	public class SpawnRequirement extends BaseRequirement {
-		public String entityType;
-
-		public SpawnRequirement() {
-			super();
-			this.entityType = "";
-		}
-
-		public SpawnRequirement(SpawnRequirement sr) {
-			super(sr);
-			this.entityType = sr.entityType;
 		}
 
 		@Override
@@ -314,9 +293,6 @@ public class Requirements {
 			if (br instanceof KillRequirement) {
 				copy.addRequirement(copy.new KillRequirement((KillRequirement) br));
 			}
-			if (br instanceof SpawnRequirement) {
-				copy.addRequirement(copy.new SpawnRequirement((SpawnRequirement) br));
-			}
 			if (br instanceof BrewRequirement) {
 				copy.addRequirement(copy.new BrewRequirement((BrewRequirement) br));
 			}
@@ -361,7 +337,6 @@ public class Requirements {
 		boolean hasPickup = false;
 		boolean hasStat = false;
 		boolean hasKill = false;
-		boolean hasSpawn = false;
 		boolean hasBrew = false;
 		boolean hasPlace = false;
 		boolean hasBreak = false;
@@ -380,18 +355,18 @@ public class Requirements {
 
 			if (r instanceof KillRequirement)
 				hasKill = true;
-
-			if (r instanceof SpawnRequirement)
-				hasSpawn = true;
+			
 			if (r instanceof BrewRequirement)
 				hasBrew = true;
+			
 			if (r instanceof PlaceRequirement)
 				hasPlace = true;
+			
 			if (r instanceof BreakRequirement)
 				hasBreak = true;
 
 		}
-		boolean[] types = { hasCraft, hasSmelt, hasPickup, hasStat, hasKill, hasSpawn, hasBrew, hasPlace, hasBreak };
+		boolean[] types = { hasCraft, hasSmelt, hasPickup, hasStat, hasKill, hasBrew, hasPlace, hasBreak };
 		return types;
 	}
 
@@ -424,10 +399,6 @@ public class Requirements {
 				break;
 			case KILL:
 				if (r instanceof KillRequirement)
-					typereq.add(r);
-				break;
-			case SPAWN:
-				if (r instanceof SpawnRequirement)
 					typereq.add(r);
 				break;
 			case BREW:

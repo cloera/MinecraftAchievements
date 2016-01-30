@@ -33,6 +33,7 @@ public class Client implements Proxy {
 		}
 		if (achievementKey.isPressed()) {
 			GuiFoundation.proxy.display(new Search());
+			//GuiFoundation.proxy.display(new AchMap(AchievementsMod.sm));
 		}
 	}
 

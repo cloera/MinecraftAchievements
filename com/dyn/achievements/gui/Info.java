@@ -3,10 +3,8 @@ package com.dyn.achievements.gui;
 import java.util.ArrayList;
 
 import com.dyn.achievements.achievement.AchievementPlus;
-import com.dyn.achievements.achievement.AchievementPlus.AchievementType;
+import com.dyn.achievements.achievement.AchievementType;
 import com.dyn.achievements.achievement.Requirements.BaseRequirement;
-import com.dyn.server.packets.PacketDispatcher;
-import com.dyn.server.packets.server.AwardAchievementMessage;
 import com.rabbit.gui.background.DefaultBackground;
 import com.rabbit.gui.component.control.Button;
 import com.rabbit.gui.component.display.Picture;
@@ -21,15 +19,15 @@ import net.minecraft.util.ResourceLocation;
 
 public class Info extends Show {
 
-	AchievementPlus achievement;
-	ResourceLocation texture;
+	private AchievementPlus achievement;
+	private ResourceLocation texture;
 
-	public Info(AchievementPlus achievement, ResourceLocation picture) {
+	public Info(AchievementPlus achievement) {
 		this.setBackground(new DefaultBackground());
 		this.title = "Achievement Gui";
 		this.achievement = achievement;
-		this.texture = picture;
-	}
+		this.texture = achievement.getTexture();
+	}	
 
 	@Override
 	public void setup() {
@@ -80,13 +78,6 @@ public class Info extends Show {
 			ulist.add(new StringEntry(
 					r.getRequirementEntityName() + " - " + r.getTotalAquired() + "/" + r.getTotalNeeded()));
 		}
-
-		if (achievement.hasRequirementOfType(AchievementType.SPAWN))
-			ulist.add(new StringEntry("-Spawn-"));
-		for (BaseRequirement r : achievement.getRequirements().getRequirementsByType(AchievementType.SPAWN)) {
-			ulist.add(new StringEntry(
-					r.getRequirementEntityName() + " - " + r.getTotalAquired() + "/" + r.getTotalNeeded()));
-		}
 		
 		if (achievement.hasRequirementOfType(AchievementType.BREW))
 			ulist.add(new StringEntry("-Brew-"));
@@ -122,11 +113,11 @@ public class Info extends Show {
 		this.registerComponent(new Button(this.width / 6, (int) (this.height * .8), 40, 20, "Back")
 				.setClickListener(but -> this.getStage().displayPrevious()));
 
-		this.registerComponent(
+		/*this.registerComponent(
 				new Button(this.width / 6, (int) (this.height * .7), 60, 20, "Award").setClickListener(but -> {
-					PacketDispatcher.sendToServer(new AwardAchievementMessage(achievement.getId()));
-					achievement.setAwarded(true);
-				}));
+					PacketDispatcher.sendToServer(new AwardAchievementMessage(achievement.getId(), LoginGUI.DYN_Username));
+					//achievement.setAwarded(true);
+				}));*/
 
 		// The background
 		this.registerComponent(new Picture(this.width / 8, (int) (this.height * .05), (int) (this.width * (6.0 / 8.0)),

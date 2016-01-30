@@ -11,7 +11,7 @@ import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 
 import com.dyn.achievements.achievement.AchievementPlus;
-import com.dyn.achievements.achievement.AchievementPlus.AchievementType;
+import com.dyn.achievements.achievement.AchievementType;
 import com.dyn.achievements.achievement.Requirements.BaseRequirement;
 import com.dyn.server.packets.PacketDispatcher;
 import com.dyn.server.packets.client.SyncAchievementsMessage;
@@ -26,12 +26,14 @@ public class EventHandler {
 		if (event.crafting != null) {
 			for (AchievementPlus a : AchievementHandler.getItemNames().get(AchievementType.CRAFT)
 					.get(event.crafting.getDisplayName())) {
-				for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.CRAFT)) {
-					if (r.getRequirementEntityName().equals(event.crafting.getDisplayName())) {
-						PacketDispatcher.sendTo(
-								new SyncAchievementsMessage(
-										"" + a.getId() + " " + AchievementType.CRAFT + " " + r.getRequirementID()),
-								(EntityPlayerMP) event.player);
+				if (a.getWorldId() > 0 && event.player.dimension == a.getWorldId()) {
+					for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.CRAFT)) {
+						if (r.getRequirementEntityName().equals(event.crafting.getDisplayName())) {
+							PacketDispatcher.sendTo(
+									new SyncAchievementsMessage(
+											"" + a.getId() + " " + AchievementType.CRAFT + " " + r.getRequirementID()),
+									(EntityPlayerMP) event.player);
+						}
 					}
 				}
 			}
@@ -43,12 +45,14 @@ public class EventHandler {
 		if (event.smelting != null) {
 			for (AchievementPlus a : AchievementHandler.getItemNames().get(AchievementType.SMELT)
 					.get(event.smelting.getDisplayName())) {
-				for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.SMELT)) {
-					if (r.getRequirementItemID() == Item.getIdFromItem(event.smelting.getItem())) {
-						PacketDispatcher.sendTo(
-								new SyncAchievementsMessage(
-										"" + a.getId() + " " + AchievementType.SMELT + " " + r.getRequirementID()),
-								(EntityPlayerMP) event.player);
+				if (a.getWorldId() > 0 && event.player.dimension == a.getWorldId()) {
+					for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.SMELT)) {
+						if (r.getRequirementItemID() == Item.getIdFromItem(event.smelting.getItem())) {
+							PacketDispatcher.sendTo(
+									new SyncAchievementsMessage(
+											"" + a.getId() + " " + AchievementType.SMELT + " " + r.getRequirementID()),
+									(EntityPlayerMP) event.player);
+						}
 					}
 				}
 			}
@@ -60,12 +64,14 @@ public class EventHandler {
 		if (event.pickedUp != null) {
 			for (AchievementPlus a : AchievementHandler.getItemNames().get(AchievementType.PICKUP)
 					.get(event.pickedUp.getEntityItem().getDisplayName())) {
-				for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.PICKUP)) {
-					if (r.getRequirementEntityName().equals(event.pickedUp.getEntityItem().getDisplayName())) {
-						PacketDispatcher.sendTo(
-								new SyncAchievementsMessage(
-										"" + a.getId() + " " + AchievementType.PICKUP + " " + r.getRequirementID()),
-								(EntityPlayerMP) event.player);
+				if (a.getWorldId() > 0 && event.player.dimension == a.getWorldId()) {
+					for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.PICKUP)) {
+						if (r.getRequirementEntityName().equals(event.pickedUp.getEntityItem().getDisplayName())) {
+							PacketDispatcher.sendTo(
+									new SyncAchievementsMessage(
+											"" + a.getId() + " " + AchievementType.PICKUP + " " + r.getRequirementID()),
+									(EntityPlayerMP) event.player);
+						}
 					}
 				}
 			}
@@ -78,12 +84,14 @@ public class EventHandler {
 				&& event.source.getEntity() instanceof EntityPlayer) {
 			for (AchievementPlus a : AchievementHandler.getEntityNames().get(AchievementType.KILL)
 					.get(EntityList.getEntityString(event.entity))) {
-				for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.KILL)) {
-					if (r.getRequirementEntityName().equals(EntityList.getEntityString(event.entity))) {
-						PacketDispatcher.sendTo(
-								new SyncAchievementsMessage(
-										"" + a.getId() + " " + AchievementType.KILL + " " + r.getRequirementID()),
-								(EntityPlayerMP) event.source.getEntity());
+				if (a.getWorldId() > 0 && event.source.getEntity().dimension == a.getWorldId()) {
+					for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.KILL)) {
+						if (r.getRequirementEntityName().equals(EntityList.getEntityString(event.entity))) {
+							PacketDispatcher.sendTo(
+									new SyncAchievementsMessage(
+											"" + a.getId() + " " + AchievementType.KILL + " " + r.getRequirementID()),
+									(EntityPlayerMP) event.source.getEntity());
+						}
 					}
 				}
 			}
@@ -96,12 +104,14 @@ public class EventHandler {
 		if (event.placedBlock != null && event.player != null) {
 			for (AchievementPlus a : AchievementHandler.getItemNames().get(AchievementType.PLACE)
 					.get(event.itemInHand.getDisplayName())) {
-				for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.PLACE)) {
-					if (r.getRequirementEntityName().equals(event.itemInHand.getDisplayName())) {
-						PacketDispatcher.sendTo(
-								new SyncAchievementsMessage(
-										"" + a.getId() + " " + AchievementType.PLACE + " " + r.getRequirementID()),
-								(EntityPlayerMP) event.player);
+				if (a.getWorldId() > 0 && event.player.dimension == a.getWorldId()) {
+					for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.PLACE)) {
+						if (r.getRequirementEntityName().equals(event.itemInHand.getDisplayName())) {
+							PacketDispatcher.sendTo(
+									new SyncAchievementsMessage(
+											"" + a.getId() + " " + AchievementType.PLACE + " " + r.getRequirementID()),
+									(EntityPlayerMP) event.player);
+						}
 					}
 				}
 
@@ -109,7 +119,7 @@ public class EventHandler {
 
 		}
 	}
-	
+
 	@SubscribeEvent
 	public void breakBlockEvent(BreakEvent event) {
 		// we are only concerned with placing blocks
@@ -117,12 +127,14 @@ public class EventHandler {
 			ItemStack is = new ItemStack(event.block, 1, event.blockMetadata);
 			for (AchievementPlus a : AchievementHandler.getItemNames().get(AchievementType.BREAK)
 					.get(is.getDisplayName())) {
-				for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.BREAK)) {
-					if (r.getRequirementEntityName().equals(is.getDisplayName())) {
-						PacketDispatcher.sendTo(
-								new SyncAchievementsMessage(
-										"" + a.getId() + " " + AchievementType.BREAK + " " + r.getRequirementID()),
-								(EntityPlayerMP) event.getPlayer());
+				if (a.getWorldId() > 0 && event.getPlayer().dimension == a.getWorldId()) {
+					for (BaseRequirement r : a.getRequirements().getRequirementsByType(AchievementType.BREAK)) {
+						if (r.getRequirementEntityName().equals(is.getDisplayName())) {
+							PacketDispatcher.sendTo(
+									new SyncAchievementsMessage(
+											"" + a.getId() + " " + AchievementType.BREAK + " " + r.getRequirementID()),
+									(EntityPlayerMP) event.getPlayer());
+						}
 					}
 				}
 

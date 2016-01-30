@@ -10,7 +10,6 @@ import com.dyn.achievements.achievement.Requirements.KillRequirement;
 import com.dyn.achievements.achievement.Requirements.PickupRequirement;
 import com.dyn.achievements.achievement.Requirements.PlaceRequirement;
 import com.dyn.achievements.achievement.Requirements.SmeltRequirement;
-import com.dyn.achievements.achievement.Requirements.SpawnRequirement;
 import com.dyn.achievements.handlers.AchievementHandler;
 import com.dyn.login.LoginGUI;
 import com.dyn.server.http.PostBadge;
@@ -23,7 +22,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.stats.Achievement;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ResourceLocation;
 
 /***
  * AchievementPlus class modifies Achievement class in MineCraft source code.
@@ -38,17 +37,18 @@ public class AchievementPlus extends Achievement {
 	private String desc;
 	private int ach_id;
 	private int map_id;
-	private String world_name;
+	private int world_id;
 	private AchievementPlus parent;
 	private int xCoord;
 	private int yCoord;
 	private boolean awarded;
+	private ResourceLocation texture;
 
 	// optional but needed to award a badge online;
 	private int badgeId;
 
 	public AchievementPlus(Requirements requirements, String name, String description, int xPos, int yPos, int badgeId,
-			int achievementId, int mapId, String worldName, AchievementPlus parent, boolean awarded) {
+			int achievementId, int mapId, int worldId, AchievementPlus parent, boolean awarded, ResourceLocation texture) {
 		super(name.replace(' ', '_'), name.replace(' ', '_'), xPos, yPos, new ItemStack(Blocks.dirt), parent);
 		LanguageRegistry.instance().addStringLocalization("achievement." + name.replace(' ', '_'), "en_US", name);
 		LanguageRegistry.instance().addStringLocalization("achievement." + name.replace(' ', '_') + ".desc", "en_US",
@@ -63,10 +63,11 @@ public class AchievementPlus extends Achievement {
 		}
 		this.ach_id = achievementId;
 		this.map_id = mapId;
-		this.world_name = worldName;
+		this.world_id = worldId;
 		this.parent = parent;
 		this.xCoord = xPos;
 		this.yCoord = yPos;
+		this.texture = texture;
 		AchievementHandler.registerAchievement(this);
 	}
 
@@ -85,6 +86,14 @@ public class AchievementPlus extends Achievement {
 	
 	public AchievementPlus getParent() {
 		return parent;
+	}
+	
+	public ResourceLocation getTexture(){
+		return texture;
+	}
+	
+	public void setTexture(ResourceLocation tex){
+		this.texture = tex;
 	}
 
 	/***
@@ -109,21 +118,30 @@ public class AchievementPlus extends Achievement {
 	 *            ItemStack
 	 */
 	public void awardAchievement(EntityPlayer player) {
-		//if(!LoginGUI.DYN_Username.isEmpty()){
-			player.addChatMessage(new ChatComponentText("Awrding achievment " + getName()));
-			System.out.println("Awarding Achievement");
-			new PostBadge(badgeId, LoginGUI.DYN_Username, "", "", player);
+		if(!LoginGUI.DYN_Username.isEmpty()){
+			new PostBadge(badgeId, LoginGUI.DYN_Username, "5e4ae1a1ddce5d341bd5c0b6075d9491620c31aed80a901345fdf91fe1757ce1d8b67b99ccaf574198c99ca12c3d288ad07b022d5b70d1c72a3d728a7a27ce23", "dd10c3a735a29a9e8d46822aac0660555a25103c57fa5188b793944fd074f1b6", player, this);
+		} else {
 			awarded = true;
 			player.addStat(this, 1);
-		//}
+		}
+	}
+	
+	public void awardAchievement(EntityPlayer player, String dynUsername) {
+			new PostBadge(badgeId, dynUsername, "5e4ae1a1ddce5d341bd5c0b6075d9491620c31aed80a901345fdf91fe1757ce1d8b67b99ccaf574198c99ca12c3d288ad07b022d5b70d1c72a3d728a7a27ce23", "dd10c3a735a29a9e8d46822aac0660555a25103c57fa5188b793944fd074f1b6", player, this);
 	}
 
 	public boolean isAwarded() {
 		return awarded;
 	}
 
-	public void setAwarded(boolean state) {
-		awarded = state;
+	public void setAwarded(EntityPlayer player) {
+		awarded = true;
+		player.addStat(this, 1);
+	}
+	
+	//if this is the client it doesnt matter if we add the stat we just need to know that its been achieved
+	public void setAwarded() {
+		awarded = true;
 	}
 
 	public String getName() {
@@ -143,12 +161,12 @@ public class AchievementPlus extends Achievement {
 		return this.map_id;
 	}
 
-	public String getWorldName() {
-		return this.world_name;
+	public int getWorldId() {
+		return this.world_id;
 	}
 
-	public void setWorldName(String name) {
-		this.world_name = name;
+	public void setWorldId(int id) {
+		this.world_id = id;
 	}
 
 	public boolean meetsRequirements() {
@@ -165,13 +183,14 @@ public class AchievementPlus extends Achievement {
 		// optional but needed to award a badge online;
 		int badgeId = 0;
 		String parentName = "";
+		ResourceLocation texture = null;
 		boolean awarded = false;
 		try {
 			String name = json.get("name").getAsString();
 			String desc = json.get("desc").getAsString();
-			int ach_id = json.get("ach_id").getAsInt();
-			int map_id = json.get("map_id").getAsInt();
-			String world_name = json.get("world").getAsString();
+			int achId = json.get("ach_id").getAsInt();
+			int mapId = json.get("map_id").getAsInt();
+			int worldId = json.get("world").getAsInt();
 			int xCoord = json.get("x_coord").getAsInt();
 			int yCoord = json.get("y_coord").getAsInt();
 
@@ -221,18 +240,6 @@ public class AchievementPlus extends Achievement {
 					requirements.addRequirement(r);
 				}
 			}
-			if (req.has("spawn_requirements")) {
-				JsonArray reqType = req.get("spawn_requirements").getAsJsonArray();
-				int counter = 1;
-				for(JsonElement jElement : reqType){
-					JsonObject reqSubType = jElement.getAsJsonObject();
-					SpawnRequirement r = requirements.new SpawnRequirement();
-					r.entityType = reqSubType.get("entity").getAsString();
-					r.setRequirementId(reqSubType.get("id").getAsInt());
-					r.setAmountNeeded(reqSubType.get("amount").getAsInt());
-					requirements.addRequirement(r);
-				}
-			}
 			if (req.has("brew_requirements")) {
 				JsonArray reqType = req.get("brew_requirements").getAsJsonArray();
 				int counter = 1;
@@ -274,8 +281,11 @@ public class AchievementPlus extends Achievement {
 			if (json.has("parent_name")) {
 				parentName = json.get("parent_name").getAsString();
 			}
-			return new AchievementPlus(requirements, name, desc, xCoord, yCoord, badgeId, ach_id, map_id, world_name,
-					AchievementHandler.findAchievementByName(parentName), awarded);
+			if(json.has("texture")){
+				texture = new ResourceLocation(json.get("texture").getAsString());
+			}
+			return new AchievementPlus(requirements, name, desc, xCoord, yCoord, badgeId, achId, mapId, worldId,
+					AchievementHandler.findAchievementByName(parentName), awarded, texture);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -288,14 +298,12 @@ public class AchievementPlus extends Achievement {
 		reply.addProperty("desc", this.desc);
 		reply.addProperty("ach_id", this.ach_id);
 		reply.addProperty("map_id", this.map_id);
-		reply.addProperty("world", this.world_name);
+		reply.addProperty("world", this.world_id);
 		reply.addProperty("x_coord", this.xCoord);
 		reply.addProperty("y_coord", this.yCoord);
-
 		JsonObject req = new JsonObject();
 		boolean[] types = requirements.getRequirementTypes();
 		for (int i = 0; i < 8; i++) {
-			//JsonObject reqTypes = new JsonObject();
 			JsonArray reqTypes = new JsonArray();
 			switch (i) {
 			case 0:
@@ -309,7 +317,6 @@ public class AchievementPlus extends Achievement {
 						reqSubTypes.addProperty("id", t.getRequirementID());
 						reqSubTypes.addProperty("item_id", t.getRequirementItemID());
 						reqSubTypes.addProperty("sub_id", t.getRequirementSubItemID());
-						//reqTypes.add("craft_req_" + Integer.toString(counter++), reqSubTypes);
 						reqTypes.add(reqSubTypes);
 					}
 					req.add("craft_requirements", reqTypes);
@@ -326,7 +333,6 @@ public class AchievementPlus extends Achievement {
 						reqSubTypes.addProperty("id", t.getRequirementID());
 						reqSubTypes.addProperty("item_id", t.getRequirementItemID());
 						reqSubTypes.addProperty("sub_id", t.getRequirementSubItemID());
-						//reqTypes.add("smelt_req_" + Integer.toString(counter++), reqSubTypes);
 						reqTypes.add(reqSubTypes);
 					}
 					req.add("smelt_requirements", reqTypes);
@@ -343,7 +349,6 @@ public class AchievementPlus extends Achievement {
 						reqSubTypes.addProperty("id", t.getRequirementID());
 						reqSubTypes.addProperty("item_id", t.getRequirementItemID());
 						reqSubTypes.addProperty("sub_id", t.getRequirementSubItemID());
-						//reqTypes.add("pickup_req_" + Integer.toString(counter++), reqSubTypes);
 						reqTypes.add(reqSubTypes);
 					}
 					req.add("pick_up_requirements", reqTypes);
@@ -358,7 +363,6 @@ public class AchievementPlus extends Achievement {
 						reqSubTypes.addProperty("stat", t.getRequirementEntityName());
 						reqSubTypes.addProperty("amount", t.getTotalNeeded());
 						reqSubTypes.addProperty("id", t.getRequirementID());
-						//reqTypes.add("stat_req_" + Integer.toString(counter++), reqSubTypes);
 						reqTypes.add(reqSubTypes);
 					}
 					req.add("stat_requirements", reqTypes);
@@ -373,28 +377,12 @@ public class AchievementPlus extends Achievement {
 						reqSubTypes.addProperty("entity", t.getRequirementEntityName());
 						reqSubTypes.addProperty("amount", t.getTotalNeeded());
 						reqSubTypes.addProperty("id", t.getRequirementID());
-						//reqTypes.add("kill_req_" + Integer.toString(counter++), reqSubTypes);
 						reqTypes.add(reqSubTypes);
 					}
 					req.add("kill_requirements", reqTypes);
 				}
 				break;
 			case 5:
-				if (types[i]) {
-					ArrayList<BaseRequirement> typeReq = requirements.getRequirementsByType(AchievementType.SPAWN);
-					int counter = 1;
-					for (BaseRequirement t : typeReq) {
-						JsonObject reqSubTypes = new JsonObject();
-						reqSubTypes.addProperty("entity", t.getRequirementEntityName());
-						reqSubTypes.addProperty("amount", t.getTotalNeeded());
-						reqSubTypes.addProperty("id", t.getRequirementID());
-						//reqTypes.add("spawn_req_" + Integer.toString(counter++), reqSubTypes);
-						reqTypes.add(reqSubTypes);
-					}
-					req.add("spawn_requirements", reqTypes);
-				}
-				break;
-			case 6:
 				if (types[i]) {
 					ArrayList<BaseRequirement> typeReq = requirements.getRequirementsByType(AchievementType.BREW);
 					int counter = 1;
@@ -410,7 +398,7 @@ public class AchievementPlus extends Achievement {
 					req.add("brew_requirements", reqTypes);
 				}
 				break;
-			case 7:
+			case 6:
 				if (types[i]) {
 					ArrayList<BaseRequirement> typeReq = requirements.getRequirementsByType(AchievementType.PLACE);
 					int counter = 1;
@@ -426,7 +414,7 @@ public class AchievementPlus extends Achievement {
 					req.add("place_requirements", reqTypes);
 				}
 				break;
-			case 8:
+			case 7:
 				if (types[i]) {
 					ArrayList<BaseRequirement> typeReq = requirements.getRequirementsByType(AchievementType.BREAK);
 					int counter = 1;
@@ -447,15 +435,13 @@ public class AchievementPlus extends Achievement {
 			}
 		}
 		reply.add("requirements", req);
+		if (this.texture != null)
+			reply.addProperty("texture", this.texture.toString());
 		if (this.badgeId > 0)
 			reply.addProperty("badge_id", this.badgeId);
 		if (this.parent != null)
 			reply.addProperty("parent_name", this.parent.getName());
 
 		return reply;
-	}
-
-	public enum AchievementType {
-		CRAFT, SMELT, PICKUP, STAT, KILL, SPAWN, BREW, PLACE, BREAK, OTHER
 	}
 }

@@ -1,7 +1,9 @@
-package com.dyn.achievements.achievement;
+package com.dyn.achievements.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.dyn.achievements.achievement.AchievementPlus;
 
 import net.vivin.GenericTree;
 import net.vivin.GenericTreeNode;
@@ -39,6 +41,10 @@ public class AchievementMap {
 	
 	public int getId(){
 		return id;
+	}
+	
+	public List<GenericTree<AchievementPlus>> getTrees(){
+		return this.trees;
 	}
 	
 	public void processMap(){
