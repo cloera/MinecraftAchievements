@@ -1,17 +1,28 @@
 package com.dyn.achievements.achievement;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-import com.dyn.achievements.achievement.AchievementPlus.AchievementType;
+import com.dyn.achievements.achievement.Requirements.BaseRequirement;
+import com.dyn.achievements.achievement.Requirements.BreakRequirement;
+import com.dyn.achievements.achievement.Requirements.BrewRequirement;
+import com.dyn.achievements.achievement.Requirements.CraftRequirement;
+import com.dyn.achievements.achievement.Requirements.KillRequirement;
+import com.dyn.achievements.achievement.Requirements.PickupRequirement;
+import com.dyn.achievements.achievement.Requirements.PlaceRequirement;
+import com.dyn.achievements.achievement.Requirements.SmeltRequirement;
+import com.dyn.achievements.handlers.AchievementHandler;
+import com.dyn.login.LoginGUI;
+import com.dyn.server.http.PostBadge;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.stats.Achievement;
-import net.minecraft.stats.StatBase;
-import net.minecraft.world.World;
+import net.minecraft.util.ResourceLocation;
 
 /***
  * AchievementPlus class modifies Achievement class in MineCraft source code.
@@ -22,226 +33,415 @@ import net.minecraft.world.World;
 public class AchievementPlus extends Achievement {
 
 	private Requirements requirements;
+	private String name;
+	private String desc;
+	private int ach_id;
+	private int map_id;
+	private int world_id;
+	private AchievementPlus parent;
+	private int xCoord;
+	private int yCoord;
+	private boolean awarded;
+	private ResourceLocation texture;
 
-	public AchievementPlus(Requirements requirements, String name, String description, int xCoord, int yCoord,
-			ItemStack displayIcon, Achievement parent) {
-		/**< something is wrong with the achievement constructor, we may need to */
-		/**< overwrite it as the text is displaying wrong */
-		super(name.toLowerCase(), description, xCoord, yCoord, displayIcon.getItem(), parent);
+	// optional but needed to award a badge online;
+	private int badgeId;
+
+	public AchievementPlus(Requirements requirements, String name, String description, int xPos, int yPos, int badgeId,
+			int achievementId, int mapId, int worldId, AchievementPlus parent, boolean awarded, ResourceLocation texture) {
+		super(name.replace(' ', '_'), name.replace(' ', '_'), xPos, yPos, new ItemStack(Blocks.dirt), parent);
+		LanguageRegistry.instance().addStringLocalization("achievement." + name.replace(' ', '_'), "en_US", name);
+		LanguageRegistry.instance().addStringLocalization("achievement." + name.replace(' ', '_') + ".desc", "en_US",
+				description);
 		this.requirements = requirements;
-		AchievementHandler.registerAchievement(name.toLowerCase(), this);
+		this.name = name;
+		this.desc = description;
+		this.badgeId = badgeId;
+		this.awarded = awarded;
+		if(awarded){
+			//Minecraft.getMinecraft().thePlayer.addStat(this, 1);
+		}
+		this.ach_id = achievementId;
+		this.map_id = mapId;
+		this.world_id = worldId;
+		this.parent = parent;
+		this.xCoord = xPos;
+		this.yCoord = yPos;
+		this.texture = texture;
+		AchievementHandler.registerAchievement(this);
 	}
 
 	/***
 	 * Get Requirements.
+	 * 
 	 * @return requirements
 	 */
 	public Requirements getRequirements() {
 		return requirements;
 	}
+	
+	public boolean hasParent() {
+		return this.parent != null;
+	}
+	
+	public AchievementPlus getParent() {
+		return parent;
+	}
+	
+	public ResourceLocation getTexture(){
+		return texture;
+	}
+	
+	public void setTexture(ResourceLocation tex){
+		this.texture = tex;
+	}
 
 	/***
 	 * If requirements of specified type exists it returns true, else false.
-	 * @param type AchievementType
-	 * @return boolean 
+	 * 
+	 * @param type
+	 *            AchievementType
+	 * @return boolean
 	 */
 	public boolean hasRequirementOfType(AchievementType type) {
 		return requirements.getRequirementsByType(type).size() > 0;
 	}
 
 	/***
-	 * Get Achievement object.
-	 * @return Achievement
-	 */
-	public Achievement getAchievement() {
-		return this;
-	}
-
-	/***
-	 * Overrides setSpecial() in Achievement class.
-	 */
-	public Achievement setSpecial() {
-		return super.setSpecial();
-	}
-
-	/***
 	 * Awards achievement to player.
-	 * @param world World
-	 * @param player EntityPlayer
-	 * @param itemStack ItemStack
+	 * 
+	 * @param world
+	 *            World
+	 * @param player
+	 *            EntityPlayer
+	 * @param itemStack
+	 *            ItemStack
 	 */
-	public void awardAchievement(World world, EntityPlayer player, ItemStack itemStack) {
+	public void awardAchievement(EntityPlayer player) {
+		if(!LoginGUI.DYN_Username.isEmpty()){
+			new PostBadge(badgeId, LoginGUI.DYN_Username, "5e4ae1a1ddce5d341bd5c0b6075d9491620c31aed80a901345fdf91fe1757ce1d8b67b99ccaf574198c99ca12c3d288ad07b022d5b70d1c72a3d728a7a27ce23", "dd10c3a735a29a9e8d46822aac0660555a25103c57fa5188b793944fd074f1b6", player, this);
+		} else {
+			awarded = true;
+			player.addStat(this, 1);
+		}
+	}
+	
+	public void awardAchievement(EntityPlayer player, String dynUsername) {
+			new PostBadge(badgeId, dynUsername, "5e4ae1a1ddce5d341bd5c0b6075d9491620c31aed80a901345fdf91fe1757ce1d8b67b99ccaf574198c99ca12c3d288ad07b022d5b70d1c72a3d728a7a27ce23", "dd10c3a735a29a9e8d46822aac0660555a25103c57fa5188b793944fd074f1b6", player, this);
+	}
+
+	public boolean isAwarded() {
+		return awarded;
+	}
+
+	public void setAwarded(EntityPlayer player) {
+		awarded = true;
 		player.addStat(this, 1);
 	}
-
-	public enum AchievementType {
-		CRAFT, SMELT, PICKUP, STAT, KILL, SPAWN, OTHER
+	
+	//if this is the client it doesnt matter if we add the stat we just need to know that its been achieved
+	public void setAwarded() {
+		awarded = true;
 	}
 
-	/***
-	 * This is Java's solution to nested classes. 
-	 * Statics tend to be dangerous in C, but either we include it in the constructor
-	 * as a static or it has to be initialized in the achievementPlus
-	 * constructor.
-	 */
-	public static class Requirements {
-		public abstract class BaseRequirement {
+	public String getName() {
+		return this.name;
+	}
 
+	@Override
+	public String getDescription() {
+		return this.desc;
+	}
+
+	public int getId() {
+		return this.ach_id;
+	}
+
+	public int getMapId() {
+		return this.map_id;
+	}
+
+	public int getWorldId() {
+		return this.world_id;
+	}
+
+	public void setWorldId(int id) {
+		this.world_id = id;
+	}
+
+	public boolean meetsRequirements() {
+		for (BaseRequirement r : requirements.getRequirements()) {
+			if (r.getTotalAquired() < r.getTotalNeeded())
+				return false;
 		}
+		return true;
+	}
 
-		public class craftRequirement extends BaseRequirement {
-			/**< what is the item? */
-			public ItemStack item;
-			/**< how many do they have to craft? */
-			public int amount;
-		}
+	public static AchievementPlus JsonToAchievement(JsonObject json) {
+		Requirements requirements = new Requirements();
 
-		public class smeltRequirement extends BaseRequirement {
-			/**< what is the item? */
-			public ItemStack item;
-			/**< how many do they have to craft? */
-			public int amount;
-		}
+		// optional but needed to award a badge online;
+		int badgeId = 0;
+		String parentName = "";
+		ResourceLocation texture = null;
+		boolean awarded = false;
+		try {
+			String name = json.get("name").getAsString();
+			String desc = json.get("desc").getAsString();
+			int achId = json.get("ach_id").getAsInt();
+			int mapId = json.get("map_id").getAsInt();
+			int worldId = json.get("world").getAsInt();
+			int xCoord = json.get("x_coord").getAsInt();
+			int yCoord = json.get("y_coord").getAsInt();
 
-		public class killRequirement extends BaseRequirement {
-			/**< what is the item? */
-			public String entityType;
-			/**< how many do they have to kill? */
-			public int amount;
-		}
-
-		public class spawnRequirement extends BaseRequirement {
-			/**< what is the item? */
-			public String entityType;
-			/**< how many do they have to create? */
-			public int amount;
-		}
-
-		public class pickupRequirement extends BaseRequirement {
-			/**< what is the item? */
-			public Item pickupItem;
-			/**< how many do they have to get? */
-			public int amount;
-		}
-
-		public class statRequirement extends BaseRequirement {
-			/**< what is the stat? */
-			public StatBase eventStat;
-			/**< how much? */
-			public int amount;
-		}
-
-		private ArrayList<BaseRequirement> requirements = new ArrayList();
-
-		public Requirements() {
-
-		}
-
-		/***
-		 * Add requirement to requirements ArrayList.
-		 * @param req BaseRequirement
-		 */
-		public void addRequirement(BaseRequirement req) {
-			requirements.add(req);
-		}
-
-		/***
-		 * Get requirements ArrayList.
-		 * @return requirements ArrayList
-		 */
-		public ArrayList<BaseRequirement> getRequirements() {
-			return requirements;
-		}
-
-		/***
-		 * Get boolean of all types from requirements ArrayList.
-		 * @return boolean[] of types in requirements
-		 */
-		public boolean[] getRequirementTypes() {
-			boolean hasCraft = false;
-			boolean hasSmelt = false;
-			boolean hasPickup = false;
-			boolean hasStat = false;
-			boolean hasKill = false;
-			boolean hasSpawn = false;
-			for (BaseRequirement r : requirements) {
-				if (r instanceof craftRequirement)
-					hasCraft = true;
-
-				if (r instanceof smeltRequirement)
-					hasSmelt = true;
-
-				if (r instanceof pickupRequirement)
-					hasPickup = true;
-
-				if (r instanceof statRequirement)
-					hasStat = true;
-
-				if (r instanceof killRequirement)
-					hasKill = true;
-
-				if (r instanceof spawnRequirement)
-					hasSpawn = true;
-
-			}
-			boolean[] types = { hasCraft, hasSmelt, hasPickup, hasStat, hasKill, hasSpawn };
-			return types;
-		}
-
-		/***
-		 * Get list of requirements by specified type.
-		 * @param type AchievementType
-		 * @return ArrayList<BaseRequirement> of given type
-		 */
-		public ArrayList<BaseRequirement> getRequirementsByType(AchievementType type) {
-			ArrayList<BaseRequirement> typereq = new ArrayList();
-			for (BaseRequirement r : requirements) {
-				switch (type) {
-				case CRAFT:
-					if (r instanceof craftRequirement)
-						typereq.add(r);
-					break;
-				case SMELT:
-					if (r instanceof smeltRequirement)
-						typereq.add(r);
-					break;
-				case PICKUP:
-					if (r instanceof pickupRequirement)
-						typereq.add(r);
-					break;
-				case STAT:
-					if (r instanceof statRequirement)
-						typereq.add(r);
-					break;
-				case KILL:
-					if (r instanceof killRequirement)
-						typereq.add(r);
-					break;
-				case SPAWN:
-					if (r instanceof spawnRequirement)
-						typereq.add(r);
-					break;
-				default:
-					break;
+			JsonObject req = (JsonObject) json.get("requirements");
+			if (req.has("craft_requirements")) {
+				JsonArray reqType = req.get("craft_requirements").getAsJsonArray();
+				for(JsonElement jElement : reqType){
+					JsonObject reqSubType = jElement.getAsJsonObject();
+					CraftRequirement r = requirements.new CraftRequirement();
+					r.setFromItemId(reqSubType.get("item_id").getAsInt(), reqSubType.get("sub_id").getAsInt());
+					r.setRequirementId(reqSubType.get("id").getAsInt());
+					r.setAmountNeeded(reqSubType.get("amount").getAsInt());
+					requirements.addRequirement(r);
 				}
 			}
-			return typereq;
+			if (req.has("smelt_requirements")) {
+				JsonArray reqType = req.get("smelt_requirements").getAsJsonArray();
+				for(JsonElement jElement : reqType){
+					JsonObject reqSubType = jElement.getAsJsonObject();
+					SmeltRequirement r = requirements.new SmeltRequirement();
+					r.setFromItemId(reqSubType.get("item_id").getAsInt(), reqSubType.get("sub_id").getAsInt());
+					r.setRequirementId(reqSubType.get("id").getAsInt());
+					r.setAmountNeeded(reqSubType.get("amount").getAsInt());
+					requirements.addRequirement(r);
+				}
+			}
+			if (req.has("pick_up_requirements")) {
+				JsonArray reqType = req.get("pick_up_requirements").getAsJsonArray();
+				for(JsonElement jElement : reqType){
+					JsonObject reqSubType = jElement.getAsJsonObject();
+					PickupRequirement r = requirements.new PickupRequirement();
+					r.setFromItemId(reqSubType.get("item_id").getAsInt(), reqSubType.get("sub_id").getAsInt());
+					r.setRequirementId(reqSubType.get("id").getAsInt());
+					r.setAmountNeeded(reqSubType.get("amount").getAsInt());
+					requirements.addRequirement(r);
+				}
+			}
+			if (req.has("kill_requirements")) {
+				JsonArray reqType = req.get("kill_requirements").getAsJsonArray();
+				int counter = 1;
+				for(JsonElement jElement : reqType){
+					JsonObject reqSubType = jElement.getAsJsonObject();
+					KillRequirement r = requirements.new KillRequirement();
+					r.entityType = reqSubType.get("entity").getAsString();
+					r.setRequirementId(reqSubType.get("id").getAsInt());
+					r.setAmountNeeded(reqSubType.get("amount").getAsInt());
+					requirements.addRequirement(r);
+				}
+			}
+			if (req.has("brew_requirements")) {
+				JsonArray reqType = req.get("brew_requirements").getAsJsonArray();
+				int counter = 1;
+				for(JsonElement jElement : reqType){
+					JsonObject reqSubType = jElement.getAsJsonObject();
+					BrewRequirement r = requirements.new BrewRequirement();
+					r.setFromItemId(reqSubType.get("item_id").getAsInt(), reqSubType.get("sub_id").getAsInt());
+					r.setRequirementId(reqSubType.get("id").getAsInt());
+					r.setAmountNeeded(reqSubType.get("amount").getAsInt());
+					requirements.addRequirement(r);
+				}
+			}
+			if (req.has("place_requirements")) {
+				JsonArray reqType = req.get("place_requirements").getAsJsonArray();
+				int counter = 1;
+				for(JsonElement jElement : reqType){
+					JsonObject reqSubType = jElement.getAsJsonObject();
+					PlaceRequirement r = requirements.new PlaceRequirement();
+					r.setFromItemId(reqSubType.get("item_id").getAsInt(), reqSubType.get("sub_id").getAsInt());
+					r.setRequirementId(reqSubType.get("id").getAsInt());
+					r.setAmountNeeded(reqSubType.get("amount").getAsInt());
+					requirements.addRequirement(r);
+				}
+			}
+			if (req.has("break_requirements")) {
+				JsonArray reqType = req.get("break_requirements").getAsJsonArray();
+				int counter = 1;
+				for(JsonElement jElement : reqType){
+					JsonObject reqSubType = jElement.getAsJsonObject();
+					BreakRequirement r = requirements.new BreakRequirement();
+					r.setFromItemId(reqSubType.get("item_id").getAsInt(), reqSubType.get("sub_id").getAsInt());
+					r.setRequirementId(reqSubType.get("id").getAsInt());
+					r.setAmountNeeded(reqSubType.get("amount").getAsInt());
+					requirements.addRequirement(r);
+				}
+			}
+			if (json.has("badge_id"))
+				badgeId = json.get("badge_id").getAsInt();
+			if (json.has("parent_name")) {
+				parentName = json.get("parent_name").getAsString();
+			}
+			if(json.has("texture")){
+				texture = new ResourceLocation(json.get("texture").getAsString());
+			}
+			return new AchievementPlus(requirements, name, desc, xCoord, yCoord, badgeId, achId, mapId, worldId,
+					AchievementHandler.findAchievementByName(parentName), awarded, texture);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		/*
-		 * public ItemStack getItemStack() { switch (type) { case CRAFT_ITEM:
-		 * case SMELT_ITEM: return items; default: return null; } }
-		 * 
-		 * public String getItem() { switch (type) { case KILL_ENTITY: return
-		 * entityType; default: return null; } }
-		 * 
-		 * public Item getEntity() { switch (type) { case PICKUP_ITEM: return
-		 * pickupItem; default: return null; } }
-		 * 
-		 * public StatBase getBaseStatistic() { switch (type) { case STAT:
-		 * return eventStat; default: return null; } }
-		 * 
-		 * public int getStatAmount() { switch (type) { case STAT: return
-		 * statAmount; default: return 0; } }
-		 */
+		return null;
+	}
+
+	public JsonObject achievementToJson() {
+		JsonObject reply = new JsonObject();
+		reply.addProperty("name", this.name);
+		reply.addProperty("desc", this.desc);
+		reply.addProperty("ach_id", this.ach_id);
+		reply.addProperty("map_id", this.map_id);
+		reply.addProperty("world", this.world_id);
+		reply.addProperty("x_coord", this.xCoord);
+		reply.addProperty("y_coord", this.yCoord);
+		JsonObject req = new JsonObject();
+		boolean[] types = requirements.getRequirementTypes();
+		for (int i = 0; i < 8; i++) {
+			JsonArray reqTypes = new JsonArray();
+			switch (i) {
+			case 0:
+				if (types[i]) {
+					ArrayList<BaseRequirement> typeReq = requirements.getRequirementsByType(AchievementType.CRAFT);
+					int counter = 1;
+					for (BaseRequirement t : typeReq) {
+						JsonObject reqSubTypes = new JsonObject();
+						reqSubTypes.addProperty("item", t.getRequirementEntityName());
+						reqSubTypes.addProperty("amount", t.getTotalNeeded());
+						reqSubTypes.addProperty("id", t.getRequirementID());
+						reqSubTypes.addProperty("item_id", t.getRequirementItemID());
+						reqSubTypes.addProperty("sub_id", t.getRequirementSubItemID());
+						reqTypes.add(reqSubTypes);
+					}
+					req.add("craft_requirements", reqTypes);
+				}
+				break;
+			case 1:
+				if (types[i]) {
+					ArrayList<BaseRequirement> typeReq = requirements.getRequirementsByType(AchievementType.SMELT);
+					int counter = 1;
+					for (BaseRequirement t : typeReq) {
+						JsonObject reqSubTypes = new JsonObject();
+						reqSubTypes.addProperty("item", t.getRequirementEntityName());
+						reqSubTypes.addProperty("amount", t.getTotalNeeded());
+						reqSubTypes.addProperty("id", t.getRequirementID());
+						reqSubTypes.addProperty("item_id", t.getRequirementItemID());
+						reqSubTypes.addProperty("sub_id", t.getRequirementSubItemID());
+						reqTypes.add(reqSubTypes);
+					}
+					req.add("smelt_requirements", reqTypes);
+				}
+				break;
+			case 2:
+				if (types[i]) {
+					ArrayList<BaseRequirement> typeReq = requirements.getRequirementsByType(AchievementType.PICKUP);
+					int counter = 1;
+					for (BaseRequirement t : typeReq) {
+						JsonObject reqSubTypes = new JsonObject();
+						reqSubTypes.addProperty("item", t.getRequirementEntityName());
+						reqSubTypes.addProperty("amount", t.getTotalNeeded());
+						reqSubTypes.addProperty("id", t.getRequirementID());
+						reqSubTypes.addProperty("item_id", t.getRequirementItemID());
+						reqSubTypes.addProperty("sub_id", t.getRequirementSubItemID());
+						reqTypes.add(reqSubTypes);
+					}
+					req.add("pick_up_requirements", reqTypes);
+				}
+				break;
+			case 3:
+				if (types[i]) {
+					ArrayList<BaseRequirement> typeReq = requirements.getRequirementsByType(AchievementType.STAT);
+					int counter = 1;
+					for (BaseRequirement t : typeReq) {
+						JsonObject reqSubTypes = new JsonObject();
+						reqSubTypes.addProperty("stat", t.getRequirementEntityName());
+						reqSubTypes.addProperty("amount", t.getTotalNeeded());
+						reqSubTypes.addProperty("id", t.getRequirementID());
+						reqTypes.add(reqSubTypes);
+					}
+					req.add("stat_requirements", reqTypes);
+				}
+				break;
+			case 4:
+				if (types[i]) {
+					ArrayList<BaseRequirement> typeReq = requirements.getRequirementsByType(AchievementType.KILL);
+					int counter = 1;
+					for (BaseRequirement t : typeReq) {
+						JsonObject reqSubTypes = new JsonObject();
+						reqSubTypes.addProperty("entity", t.getRequirementEntityName());
+						reqSubTypes.addProperty("amount", t.getTotalNeeded());
+						reqSubTypes.addProperty("id", t.getRequirementID());
+						reqTypes.add(reqSubTypes);
+					}
+					req.add("kill_requirements", reqTypes);
+				}
+				break;
+			case 5:
+				if (types[i]) {
+					ArrayList<BaseRequirement> typeReq = requirements.getRequirementsByType(AchievementType.BREW);
+					int counter = 1;
+					for (BaseRequirement t : typeReq) {
+						JsonObject reqSubTypes = new JsonObject();
+						reqSubTypes.addProperty("item", t.getRequirementEntityName());
+						reqSubTypes.addProperty("amount", t.getTotalNeeded());
+						reqSubTypes.addProperty("id", t.getRequirementID());
+						reqSubTypes.addProperty("item_id", t.getRequirementItemID());
+						reqSubTypes.addProperty("sub_id", t.getRequirementSubItemID());
+						reqTypes.add(reqSubTypes);
+					}
+					req.add("brew_requirements", reqTypes);
+				}
+				break;
+			case 6:
+				if (types[i]) {
+					ArrayList<BaseRequirement> typeReq = requirements.getRequirementsByType(AchievementType.PLACE);
+					int counter = 1;
+					for (BaseRequirement t : typeReq) {
+						JsonObject reqSubTypes = new JsonObject();
+						reqSubTypes.addProperty("item", t.getRequirementEntityName());
+						reqSubTypes.addProperty("amount", t.getTotalNeeded());
+						reqSubTypes.addProperty("id", t.getRequirementID());
+						reqSubTypes.addProperty("item_id", t.getRequirementItemID());
+						reqSubTypes.addProperty("sub_id", t.getRequirementSubItemID());
+						reqTypes.add(reqSubTypes);
+					}
+					req.add("place_requirements", reqTypes);
+				}
+				break;
+			case 7:
+				if (types[i]) {
+					ArrayList<BaseRequirement> typeReq = requirements.getRequirementsByType(AchievementType.BREAK);
+					int counter = 1;
+					for (BaseRequirement t : typeReq) {
+						JsonObject reqSubTypes = new JsonObject();
+						reqSubTypes.addProperty("item", t.getRequirementEntityName());
+						reqSubTypes.addProperty("amount", t.getTotalNeeded());
+						reqSubTypes.addProperty("id", t.getRequirementID());
+						reqSubTypes.addProperty("item_id", t.getRequirementItemID());
+						reqSubTypes.addProperty("sub_id", t.getRequirementSubItemID());
+						reqTypes.add(reqSubTypes);
+					}
+					req.add("break_requirements", reqTypes);
+				}
+				break;
+			default:
+				break;
+			}
+		}
+		reply.add("requirements", req);
+		if (this.texture != null)
+			reply.addProperty("texture", this.texture.toString());
+		if (this.badgeId > 0)
+			reply.addProperty("badge_id", this.badgeId);
+		if (this.parent != null)
+			reply.addProperty("parent_name", this.parent.getName());
+
+		return reply;
 	}
 }
